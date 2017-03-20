@@ -125,8 +125,7 @@ public class TrackingService extends Service {
 
         PollingTask pollingTask = new PollingTask(POLLING_TASK_INTERVAL);
         pollingTask.run();
-//        Intent intentServiceIntent = new Intent(this,DataCollectingIntentService.class);
-//        startService(intentServiceIntent);
+
 //
 //        new DataCollectingTask().execute();
 
