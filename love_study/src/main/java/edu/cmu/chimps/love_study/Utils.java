@@ -7,6 +7,9 @@ import android.preference.PreferenceManager;
 
 import com.github.privacystreams.accessibility.MyAccessibilityService;
 
+import java.util.Random;
+import java.util.Set;
+
 /**
  * Created by fanglinchen on 3/17/17.
  */
@@ -35,10 +38,30 @@ public class Utils {
         return sharedPref.getString(context.getResources().getString(R.string.shared_preference_key_participant_id),null);
     }
 
-    public static String getFriendInitialsList(Context context){
+    public static String getPartnerInitial(Context context){
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
-        return sharedPref.getString(context.getResources().getString(R.string.shared_preference_key_participant_id),null);
+        return sharedPref.getString(context.getResources().getString(R.string.shared_preference_key_partner_initial),null);
+    }
+
+    public static String randomlySelectFriendInitial(Context context){
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+
+        Set<String> set = sharedPref.getStringSet(context.getResources().getString(R.string.friends_key),null);
+        if(set==null){
+            return null;
+        }
+
+        int size = set.size();
+        int item = new Random().nextInt(size); // In real life, the Random object should be rather more shared than this
+        int i = 0;
+        for(String randomlySelected : set)
+        {
+            if (i == item)
+                return randomlySelected;
+            i++;
+        }
+        return null;
     }
 
 }

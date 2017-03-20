@@ -64,6 +64,10 @@ class WifiApListProvider extends MStreamProvider {
             this.getContext().registerReceiver(this.wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
             wifiMgr.startScan();
         }
+        else{
+            Log.e("wifi","not enabled");
+            this.finish();
+        }
     }
 
 }

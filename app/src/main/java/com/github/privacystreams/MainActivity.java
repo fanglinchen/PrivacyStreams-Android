@@ -41,8 +41,9 @@ public class MainActivity extends AppCompatActivity {
             UseCases useCases = new UseCases(MainActivity.this);
 
 //            useCases.testContacts();
-            useCases.testMockData();
-            useCases.testTextEntry();
+
+            useCases.testDeviceState();
+//            useCases.testTextEntry();
 //
 //            useCases.testBrowserSearchUpdates();
 //            useCases.testBrowserHistoryUpdates();

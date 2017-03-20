@@ -41,6 +41,8 @@ public class ReminderManager extends BroadcastReceiver {
 	
 	private static final String PREF_SAVED_REMINDERS = "preference_saved_reminders";
 	private String participantID;
+	private String partnerInitial;
+
 	private static Context mContext;
 	
 	@SuppressLint("NewApi")
@@ -56,7 +58,7 @@ public class ReminderManager extends BroadcastReceiver {
 				Intent surveyIntent = new Intent();
 				surveyIntent.setClass(mContext, QualtricActivity.class);
 				surveyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // this is required for calling an activity when outside of an activity
-				surveyIntent.putExtra(Constants.URL.KEY_SURVEY_URL,reminder.url);
+				surveyIntent.putExtra(Constants.URL.KEY_SURVEY_URL,reminder.url+"&Source="+Utils.randomlySelectFriendInitial(mContext));
 				PendingIntent contentIntent = PendingIntent.getActivity(mContext.getApplicationContext(),
 						reminder.id, surveyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -85,6 +87,10 @@ public class ReminderManager extends BroadcastReceiver {
 	public ReminderManager(Context context){
 		mContext = context;
 		participantID = Utils.getParticipantID(context);
+		partnerInitial = Utils.getPartnerInitial(context);
+
+
+
 	}
 	public void scheduleAllSurveyReminders(){
 
@@ -92,7 +98,7 @@ public class ReminderManager extends BroadcastReceiver {
 		endOfTheDaySurveyReminder.hour = 16;
 		endOfTheDaySurveyReminder.minute = 24;
 		endOfTheDaySurveyReminder.type = REMINDER_TYPE_DAILY;
-		endOfTheDaySurveyReminder.url = Constants.URL.END_OF_THE_DAY_EMA_URL+"&Id="+participantID;
+		endOfTheDaySurveyReminder.url = Constants.URL.END_OF_THE_DAY_EMA_URL+"&Id="+participantID+"&Partner="+partnerInitial;
 		endOfTheDaySurveyReminder.notifText = "Self report";
 		endOfTheDaySurveyReminder.notifTitle = "Survey";
 
@@ -100,7 +106,7 @@ public class ReminderManager extends BroadcastReceiver {
 
 		Reminder dailyRandomSurveyReminder = new Reminder();
 		dailyRandomSurveyReminder.type = REMINDER_TYPE_DAILY_RANDOM;
-		dailyRandomSurveyReminder.url = Constants.URL.DAILY_EMA_URL+"&Id="+participantID;
+		dailyRandomSurveyReminder.url = Constants.URL.DAILY_EMA_URL+"&Id="+participantID+"&Partner="+partnerInitial;
 		dailyRandomSurveyReminder.notifText = "Self report";
 		dailyRandomSurveyReminder.notifTitle = "Survey";
 
@@ -110,7 +116,7 @@ public class ReminderManager extends BroadcastReceiver {
 		weeklySurveyReminder.hour = 10;
 		weeklySurveyReminder.minute = 0;
 		weeklySurveyReminder.type = REMINDER_TYPE_DAILY;
-		weeklySurveyReminder.url = Constants.URL.WEEKLY_EMA_URL+"&Id="+participantID;
+		weeklySurveyReminder.url = Constants.URL.WEEKLY_EMA_URL+"&Id="+participantID+"&Partner="+partnerInitial;
 		weeklySurveyReminder.notifText = "Self report";
 		weeklySurveyReminder.notifTitle = "Survey";
 
