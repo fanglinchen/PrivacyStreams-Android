@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.github.privacystreams.utils.time.Duration;
 
@@ -25,6 +24,7 @@ import java.util.Random;
 import edu.cmu.chimps.love_study.Constants;
 import edu.cmu.chimps.love_study.QualtricActivity;
 import edu.cmu.chimps.love_study.R;
+import edu.cmu.chimps.love_study.Utils;
 
 
 public class ReminderManager extends BroadcastReceiver {
@@ -37,12 +37,10 @@ public class ReminderManager extends BroadcastReceiver {
 	public static final String KEY_REMINDER_ACTION = "REMINDER_ACTION";
 	public static final String KEY_ALARM_TYPE = "alarm_type";
 	public static final String KEY_REMINDER_ID = "reminder_id";
-	public static final String ALARM_TYPE_DELAY = "alarm_type_delay";
 	public static final String ALARM_TYPE_REMINDER = "alarm_type_reminder";
-	public static final String ALARM_TYPE_REMOVE_NOTIFICATION = "alarm_type_remove_notification";
 	
 	private static final String PREF_SAVED_REMINDERS = "preference_saved_reminders";
-	
+	private String participantID;
 	private static Context mContext;
 	
 	@SuppressLint("NewApi")
@@ -55,7 +53,6 @@ public class ReminderManager extends BroadcastReceiver {
 			} else if (intent.getAction().equals(KEY_REMINDER_ACTION)) {
 				// Deliver a notification
 				Reminder reminder = this.getReminder(intent.getExtras().getInt(KEY_REMINDER_ID));
-
 				Intent surveyIntent = new Intent();
 				surveyIntent.setClass(mContext, QualtricActivity.class);
 				surveyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // this is required for calling an activity when outside of an activity
@@ -66,7 +63,7 @@ public class ReminderManager extends BroadcastReceiver {
 				Notification noti = new Notification.Builder(mContext)
 		         .setContentTitle(reminder.notifTitle)
 		         .setContentText(reminder.notifText)
-		         .setSmallIcon(R.drawable.ic_launcher)
+		         .setSmallIcon(R.drawable.heart)
 		         .setDefaults(Notification.DEFAULT_ALL)
 		         .setAutoCancel(true)
 		         .setContentIntent(contentIntent)
@@ -87,15 +84,15 @@ public class ReminderManager extends BroadcastReceiver {
 
 	public ReminderManager(Context context){
 		mContext = context;
+		participantID = Utils.getParticipantID(context);
 	}
-
-	public static void scheduleAllSurveyReminders(){
+	public void scheduleAllSurveyReminders(){
 
 		Reminder endOfTheDaySurveyReminder = new Reminder();
-		endOfTheDaySurveyReminder.hour = 22;
-		endOfTheDaySurveyReminder.minute = 0;
+		endOfTheDaySurveyReminder.hour = 16;
+		endOfTheDaySurveyReminder.minute = 24;
 		endOfTheDaySurveyReminder.type = REMINDER_TYPE_DAILY;
-		endOfTheDaySurveyReminder.url = Constants.URL.END_OF_THE_DAY_EMA_URL;
+		endOfTheDaySurveyReminder.url = Constants.URL.END_OF_THE_DAY_EMA_URL+"&Id="+participantID;
 		endOfTheDaySurveyReminder.notifText = "Self report";
 		endOfTheDaySurveyReminder.notifTitle = "Survey";
 
@@ -103,7 +100,7 @@ public class ReminderManager extends BroadcastReceiver {
 
 		Reminder dailyRandomSurveyReminder = new Reminder();
 		dailyRandomSurveyReminder.type = REMINDER_TYPE_DAILY_RANDOM;
-		dailyRandomSurveyReminder.url = Constants.URL.DAILY_EMA_URL;
+		dailyRandomSurveyReminder.url = Constants.URL.DAILY_EMA_URL+"&Id="+participantID;
 		dailyRandomSurveyReminder.notifText = "Self report";
 		dailyRandomSurveyReminder.notifTitle = "Survey";
 
@@ -113,12 +110,11 @@ public class ReminderManager extends BroadcastReceiver {
 		weeklySurveyReminder.hour = 10;
 		weeklySurveyReminder.minute = 0;
 		weeklySurveyReminder.type = REMINDER_TYPE_DAILY;
-		weeklySurveyReminder.url = Constants.URL.WEEKLY_EMA_URL;
+		weeklySurveyReminder.url = Constants.URL.WEEKLY_EMA_URL+"&Id="+participantID;
 		weeklySurveyReminder.notifText = "Self report";
 		weeklySurveyReminder.notifTitle = "Survey";
 
 		scheduleReminder(weeklySurveyReminder);
-
 	}
 
 	public static void scheduleReminder(Reminder reminder){
@@ -131,8 +127,6 @@ public class ReminderManager extends BroadcastReceiver {
 		PendingIntent pi = PendingIntent.getBroadcast(mContext, reminder.id, i, PendingIntent.FLAG_UPDATE_CURRENT); // identified by reminder ID, so only one alarm per reminder
 
 		Date deliveryTime = getNextOccurrence(reminder);
-
-		Log.e("deliveryTime",deliveryTime.toString());
 
 		switch (reminder.type){
 			case REMINDER_TYPE_DAILY:
@@ -147,6 +141,7 @@ public class ReminderManager extends BroadcastReceiver {
 			default:
 				break;
 		}
+		insertReminder(reminder);
 	}
 	
 	public void scheduleAllReminders(){
@@ -178,8 +173,6 @@ public class ReminderManager extends BroadcastReceiver {
 				setTo.set(Calendar.MINUTE, reminder.minute);
 				if (now.getTimeInMillis() > setTo.getTimeInMillis()){
 					// previous time today, so set for tomorrow
-					Log.e("supposed to set",setTo.getTimeInMillis()+"");
-					Log.e("now",now.getTimeInMillis()+"");
 					setTo.add(Calendar.DAY_OF_YEAR, 1);
 				}
 				break;
@@ -219,7 +212,7 @@ public class ReminderManager extends BroadcastReceiver {
 		return null;
 	}
 	
-	public ArrayList<Reminder> getAllReminders(){
+	public static ArrayList<Reminder> getAllReminders(){
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		ArrayList<Reminder> reminders = new ArrayList<Reminder>();
 		try {
@@ -235,26 +228,12 @@ public class ReminderManager extends BroadcastReceiver {
 		return reminders;
 	}
 
-	public void insertReminder(Reminder reminder){
-		ArrayList<Reminder> reminders = this.getAllReminders();
+	public static void insertReminder(Reminder reminder){
+		ArrayList<Reminder> reminders = getAllReminders();
 		reminders.add(reminder);
-		this.scheduleReminder(reminder);
-		this.saveAllReminders(reminders);
+		saveAllReminders(reminders);
 	}
 
-	public void insertReminder(int hour, int minute, String notificationTitle, String notificationText){
-		Reminder reminder = new Reminder();
-		reminder.hour = hour;
-		reminder.minute = minute;
-		reminder.notifTitle = notificationTitle;
-		reminder.notifText = notificationText;
-
-		ArrayList<Reminder> reminders = this.getAllReminders();
-		reminders.add(reminder);
-		this.scheduleReminder(reminder);
-		this.saveAllReminders(reminders);
-
-	}
 
 	public void removeReminder(Reminder reminder){
 		ArrayList<Reminder> reminders = this.getAllReminders();
@@ -269,7 +248,7 @@ public class ReminderManager extends BroadcastReceiver {
 	}
 
 
-	private void saveAllReminders(ArrayList<Reminder> reminders){
+	private static void saveAllReminders(ArrayList<Reminder> reminders){
 		JSONArray jsons = new JSONArray();
 		for(Reminder it : reminders){
 			jsons.put(it.toJson());

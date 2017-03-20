@@ -62,7 +62,6 @@ public class CalendarEventListProvider extends MStreamProvider {
                 String starttime = c.getString(c.getColumnIndex(CalendarContract.Events.DTSTART));
                 String location = c.getString(c.getColumnIndex(CalendarContract.Events.EVENT_LOCATION));
                 String duration = c.getString(c.getColumnIndex(CalendarContract.Events.DURATION));
-                Log.e("event",title+","+location);
                 CalendarEvent calendarEvent = new CalendarEvent(id,title,Long.valueOf(starttime),duration,location);
                 output(calendarEvent);
 

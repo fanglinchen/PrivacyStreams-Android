@@ -13,6 +13,9 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.widget.Toast;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static edu.cmu.chimps.love_study.Utils.isAccessibilityEnabled;
 import static edu.cmu.chimps.love_study.Utils.isTrackingEnabled;
 
@@ -118,10 +121,15 @@ public class GeneralSettingActivity extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
                             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+                            Set<String> set = sharedPref.getStringSet(getResources().getString(R.string.friends_key), null);
 
+                            if(set==null)
+                                set=new HashSet<String>();
+
+                            set.add(newValue.toString());
                             SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString(getString(R.string.f1_key),
-                                    newValue.toString());
+                            editor.putStringSet(getResources().getString(R.string.friends_key), set);
+
                             editor.apply();
                             f1Preference.setEnabled(false);
                             return true;
@@ -136,10 +144,15 @@ public class GeneralSettingActivity extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
                             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+                            Set<String> set = sharedPref.getStringSet(getResources().getString(R.string.friends_key), null);
 
+                            if(set==null)
+                                set=new HashSet<String>();
+
+                            set.add(newValue.toString());
                             SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString(getString(R.string.f2_key),
-                                    newValue.toString());
+                            editor.putStringSet(getResources().getString(R.string.friends_key), set);
+
                             editor.apply();
                             f2Preference.setEnabled(false);
                             return true;
@@ -154,10 +167,15 @@ public class GeneralSettingActivity extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
                             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+                            Set<String> set = sharedPref.getStringSet(getResources().getString(R.string.friends_key), null);
 
+                            if(set==null)
+                                set=new HashSet<String>();
+
+                            set.add(newValue.toString());
                             SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString(getString(R.string.f3_key),
-                                    newValue.toString());
+                            editor.putStringSet(getResources().getString(R.string.friends_key), set);
+
                             editor.apply();
                             f3Preference.setEnabled(false);
                             return true;
@@ -172,10 +190,15 @@ public class GeneralSettingActivity extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
                             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+                            Set<String> set = sharedPref.getStringSet(getResources().getString(R.string.friends_key), null);
 
+                            if(set==null)
+                                set=new HashSet<String>();
+
+                            set.add(newValue.toString());
                             SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString(getString(R.string.f4_key),
-                                    newValue.toString());
+                            editor.putStringSet(getResources().getString(R.string.friends_key), set);
+
                             editor.apply();
                             f4Preference.setEnabled(false);
                             return true;
@@ -190,10 +213,15 @@ public class GeneralSettingActivity extends PreferenceActivity {
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
                             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+                            Set<String> set = sharedPref.getStringSet(getResources().getString(R.string.friends_key), null);
 
+                            if(set==null)
+                                set=new HashSet<String>();
+
+                            set.add(newValue.toString());
                             SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString(getString(R.string.f5_key),
-                                    newValue.toString());
+                            editor.putStringSet(getResources().getString(R.string.friends_key), set);
+
                             editor.apply();
                             f5Preference.setEnabled(false);
                             return true;

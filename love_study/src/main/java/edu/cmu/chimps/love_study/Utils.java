@@ -2,6 +2,8 @@ package edu.cmu.chimps.love_study;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.github.privacystreams.accessibility.MyAccessibilityService;
 
@@ -25,6 +27,18 @@ public class Utils {
 
     public static boolean isTrackingEnabled(Context context){
         return isMyServiceRunning(context, TrackingService.class);
+    }
+
+    public static String getParticipantID(Context context){
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+
+        return sharedPref.getString(context.getResources().getString(R.string.shared_preference_key_participant_id),null);
+    }
+
+    public static String getFriendInitialsList(Context context){
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+
+        return sharedPref.getString(context.getResources().getString(R.string.shared_preference_key_participant_id),null);
     }
 
 }

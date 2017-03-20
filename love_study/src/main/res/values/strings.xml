@@ -1,11 +1,7 @@
 <resources>
     <string name="app_name">Love Study</string>
 
-    <string name="f1_key">Friend 1 Initial</string>
-    <string name="f2_key">Friend 2 Initial</string>
-    <string name="f3_key">Friend 3 Initial</string>
-    <string name="f4_key">Friend 4 Initial</string>
-    <string name="f5_key">Friend 5 Initial</string>
+    <string name="friends_key">Friends_Initial</string>
 
 
     <string name="service_name">Love Study is Collecting Data</string>

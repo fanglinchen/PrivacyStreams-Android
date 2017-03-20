@@ -4,12 +4,10 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.NotificationCompat;
@@ -44,12 +42,7 @@ import com.github.privacystreams.utils.time.Duration;
 import com.google.android.gms.location.LocationRequest;
 
 import edu.cmu.chimps.love_study.pam.PAMActivity;
-import edu.cmu.chimps.love_study.reminders.Reminder;
 import edu.cmu.chimps.love_study.reminders.ReminderManager;
-
-import static edu.cmu.chimps.love_study.reminders.ReminderManager.REMINDER_TYPE_DAILY;
-import static edu.cmu.chimps.love_study.reminders.ReminderManager.REMINDER_TYPE_DAILY_RANDOM;
-import static edu.cmu.chimps.love_study.reminders.ReminderManager.scheduleReminder;
 
 /**
  * Created by fanglinchen on 3/16/17.
@@ -64,42 +57,7 @@ public class TrackingService extends Service {
     UQI uqi;
     ReminderManager reminderManager;
 
-    public String getParticipantID(){
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        return sharedPref.getString(getResources().getString(R.string.shared_preference_key_participant_id),null);
-    }
-    public void scheduleAllSurveyReminders(){
-
-        Reminder endOfTheDaySurveyReminder = new Reminder();
-        endOfTheDaySurveyReminder.hour = 16;
-        endOfTheDaySurveyReminder.minute = 05;
-        endOfTheDaySurveyReminder.type = REMINDER_TYPE_DAILY;
-        endOfTheDaySurveyReminder.url = Constants.URL.END_OF_THE_DAY_EMA_URL;
-        endOfTheDaySurveyReminder.notifText = "Self report";
-        endOfTheDaySurveyReminder.notifTitle = "Survey";
-
-        scheduleReminder(endOfTheDaySurveyReminder);
-
-        Reminder dailyRandomSurveyReminder = new Reminder();
-        dailyRandomSurveyReminder.type = REMINDER_TYPE_DAILY_RANDOM;
-        dailyRandomSurveyReminder.url = Constants.URL.DAILY_EMA_URL;
-        dailyRandomSurveyReminder.notifText = "Self report";
-        dailyRandomSurveyReminder.notifTitle = "Survey";
-
-        scheduleReminder(dailyRandomSurveyReminder);
-
-        Reminder weeklySurveyReminder = new Reminder();
-        weeklySurveyReminder.hour = 10;
-        weeklySurveyReminder.minute = 0;
-        weeklySurveyReminder.type = REMINDER_TYPE_DAILY;
-        weeklySurveyReminder.url = Constants.URL.WEEKLY_EMA_URL;
-        weeklySurveyReminder.notifText = "Self report";
-        weeklySurveyReminder.notifTitle = "Survey";
-
-        scheduleReminder(weeklySurveyReminder);
-
-    }
 
 
     private void setupDropbox(){
@@ -107,7 +65,7 @@ public class TrackingService extends Service {
                 .getResources().getString(R.string.dropbox_access_token);
         GlobalConfig.DropboxConfig.leastSyncInterval = Duration.seconds(3);
         GlobalConfig.DropboxConfig.onlyOverWifi = false;
-        participantId = getParticipantID();
+        participantId = Utils.getParticipantID(this);
         if(participantId==null){
             Toast.makeText(this,"Please fill in your participant id then start tracking. ", Toast.LENGTH_LONG).show();
         }
@@ -186,7 +144,7 @@ public class TrackingService extends Service {
             showNotification();
             setupDropbox();
             collectData();
-            scheduleAllSurveyReminders();
+            reminderManager.scheduleAllSurveyReminders();
         }
         return START_STICKY;
     }
