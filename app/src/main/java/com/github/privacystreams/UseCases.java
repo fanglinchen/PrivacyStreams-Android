@@ -224,7 +224,7 @@ public class UseCases {
     int getCallCountSince() throws PrivacyStreamsException {
         return uqi
                 .getData(Phonecall.asLogs(), Purpose.FEATURE("know how many calls you made"))
-                .filter(TimeOperators.since(Phonecall.TIMESTAMP, TimeUtils.format("yyyy-MM-dd", "2015-10-31")))
+                .filter(TimeOperators.since(Phonecall.TIMESTAMP, TimeUtils.fromFormattedString("yyyy-MM-dd", "2015-10-31")))
                 .count();
     }
 

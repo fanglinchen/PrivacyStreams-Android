@@ -3,6 +3,7 @@ package com.github.privacystreams.storage;
 import android.Manifest;
 import android.content.Context;
 
+import com.github.privacystreams.core.AsyncFunction;
 import com.github.privacystreams.core.Function;
 import com.github.privacystreams.core.UQI;
 import com.github.privacystreams.utils.Assertions;
@@ -17,10 +18,10 @@ import java.io.IOException;
  * Write an Item to a file
  */
 
-final class FileAppender<Tin> extends Function<Tin, Void> {
+class FileAppender<Tin> extends AsyncFunction<Tin, Void> {
 
     private final String dirPath;
-    private final String fileName;
+    protected final String fileName;
 
     private static final String SEPARATOR = "\n\n\n";
 
@@ -34,7 +35,11 @@ final class FileAppender<Tin> extends Function<Tin, Void> {
     }
 
     @Override
-    public Void apply(UQI uqi, Tin input) {
+    protected Void init(UQI uqi, Tin input) {
+        return null;
+    }
+
+    public void applyInBackground(UQI uqi, Tin input) {
         try {
             FileOutputStream fileOutputStream;
             if (this.dirPath == null) {
@@ -52,6 +57,5 @@ final class FileAppender<Tin> extends Function<Tin, Void> {
             Logging.warn("error writing data to file.");
             e.printStackTrace();
         }
-        return null;
     }
 }
