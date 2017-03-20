@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.widget.Toast;
 
@@ -73,128 +74,128 @@ public class GeneralSettingActivity extends PreferenceActivity {
                 }
             });
 
-            Preference participantIdPreference = findPreference("participantId");
+            final Preference participantIdPreference = findPreference("participantId");
             participantIdPreference
                     .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
                         @Override
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
-                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
                             SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString(getString(R.string.preference_participant_id_key),
+                            editor.putString(getString(R.string.shared_preference_key_participant_id),
                                     newValue.toString());
                             editor.apply();
-
+                            participantIdPreference.setEnabled(false);
                             return true;
                         }
             });
 
-            Preference partnerInitialPreference = findPreference("partnerInitial");
+            final Preference partnerInitialPreference = findPreference("partnerInitial");
             partnerInitialPreference
                     .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
                         @Override
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
-                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString(getString(R.string.preference_partner_key),
                                     newValue.toString());
                             editor.apply();
-
+                            partnerInitialPreference.setEnabled(false);
                             return true;
                         }
                     });
 
-            Preference f1Preference = findPreference("username1");
+            final Preference f1Preference = findPreference("username1");
             f1Preference
                     .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
                         @Override
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
-                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString(getString(R.string.f1_key),
                                     newValue.toString());
                             editor.apply();
-
+                            f1Preference.setEnabled(false);
                             return true;
                         }
                     });
 
-            Preference f2Preference = findPreference("username2");
+            final Preference f2Preference = findPreference("username2");
             f2Preference
                     .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
                         @Override
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
-                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString(getString(R.string.f2_key),
                                     newValue.toString());
                             editor.apply();
-
+                            f2Preference.setEnabled(false);
                             return true;
                         }
                     });
 
-            Preference f3Preference = findPreference("username3");
+            final Preference f3Preference = findPreference("username3");
             f3Preference
                     .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
                         @Override
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
-                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString(getString(R.string.f3_key),
                                     newValue.toString());
                             editor.apply();
-
+                            f3Preference.setEnabled(false);
                             return true;
                         }
                     });
 
-            Preference f4Preference = findPreference("username4");
+            final Preference f4Preference = findPreference("username4");
             f4Preference
                     .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
                         @Override
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
-                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString(getString(R.string.f4_key),
                                     newValue.toString());
                             editor.apply();
-
+                            f4Preference.setEnabled(false);
                             return true;
                         }
             });
 
-            Preference f5Preference = findPreference("username5");
+            final Preference f5Preference = findPreference("username5");
             f5Preference
                     .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
                         @Override
                         public boolean onPreferenceChange(Preference preference,
                                                           Object newValue) {
-                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString(getString(R.string.f5_key),
                                     newValue.toString());
                             editor.apply();
-
+                            f5Preference.setEnabled(false);
                             return true;
                         }
                     });

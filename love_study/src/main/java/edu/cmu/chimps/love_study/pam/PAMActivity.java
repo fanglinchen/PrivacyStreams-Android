@@ -123,7 +123,7 @@ public class PAMActivity extends AppCompatActivity {
     private class MyAsyncTask extends AsyncTask<String, Object, Object> {
         @Override
         protected Object doInBackground(String[] strings) {
-            DropboxOperators.uploadAs("PAM").apply(new UQI(PAMActivity.this), strings[0]);
+            DropboxOperators.uploadTo("PAM.txt",true).apply(new UQI(PAMActivity.this), strings[0]);
             return null;
         }
     }

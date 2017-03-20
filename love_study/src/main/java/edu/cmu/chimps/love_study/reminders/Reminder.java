@@ -8,13 +8,13 @@ import java.util.Random;
 public class Reminder {
 
 
-	Integer id;
-	String notifTitle; // Title to show on notification
-	String notifText;  // Text of notification
-	Integer hour;  // Hour of the day to deliver reminder
-	Integer minute; // Minute of the hour to deliver reminder
-	String url;
-	Integer type;
+	public Integer id;
+	public String notifTitle; // Title to show on notification
+	public String notifText;  // Text of notification
+	public Integer hour;  // Hour of the day to deliver reminder
+	public Integer minute; // Minute of the hour to deliver reminder
+	public String url;
+	public Integer type;
 	
 	public static final String EXTRA_REMINDER_ID = "reminder_id";
 	private static final String KEY_ID = "id";

@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.github.privacystreams.utils.time.Duration;
 
@@ -131,6 +132,8 @@ public class ReminderManager extends BroadcastReceiver {
 
 		Date deliveryTime = getNextOccurrence(reminder);
 
+		Log.e("deliveryTime",deliveryTime.toString());
+
 		switch (reminder.type){
 			case REMINDER_TYPE_DAILY:
 				mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, deliveryTime.getTime(), Duration.days(1), pi); // repeat daily
@@ -175,6 +178,8 @@ public class ReminderManager extends BroadcastReceiver {
 				setTo.set(Calendar.MINUTE, reminder.minute);
 				if (now.getTimeInMillis() > setTo.getTimeInMillis()){
 					// previous time today, so set for tomorrow
+					Log.e("supposed to set",setTo.getTimeInMillis()+"");
+					Log.e("now",now.getTimeInMillis()+"");
 					setTo.add(Calendar.DAY_OF_YEAR, 1);
 				}
 				break;

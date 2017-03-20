@@ -3,8 +3,8 @@
     <PreferenceCategory android:title="NAMES">
     <EditTextPreference
         android:key="participantId"
-        android:title="@string/pref_title_display_name"
-        android:defaultValue="@string/pref_default_display_name"
+        android:title="@string/pref_key_participant_id_label"
+        android:defaultValue="@string/pref_value_default_participant_id"
         android:selectAllOnFocus="true"
         android:inputType="textCapWords"
         android:capitalize="words"
@@ -12,8 +12,8 @@
         android:maxLines="1" />
     <EditTextPreference
         android:key="partnerInitial"
-        android:title="@string/pref_title_display_name"
-        android:defaultValue="@string/pref_default_display_name"
+        android:title="@string/preference_partner_key"
+        android:defaultValue="@string/pref_value_default_partner_initial"
         android:selectAllOnFocus="true"
         android:inputType="textCapWords"
         android:capitalize="words"

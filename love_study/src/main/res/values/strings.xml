@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Love Study</string>
-    <string name="preference_participant_id_key">Participant_ID</string>
-    <string name="preference_partner_key">Partner</string>
+
     <string name="f1_key">Friend 1 Initial</string>
     <string name="f2_key">Friend 2 Initial</string>
     <string name="f3_key">Friend 3 Initial</string>
@@ -27,8 +26,17 @@
     <string name="pref_description_startup">Automatically run the logger every time the phone starts up
     </string>
 
-    <string name="pref_title_display_name">Participant ID</string>
-    <string name="pref_default_display_name">P00</string>
+
+    <string name="shared_preference_key_participant_id">key_participant</string>
+
+    <string name="pref_key_participant_id_label">Participant ID</string>
+    <string name="pref_value_default_participant_id">P00</string>
+
+
+
+    <string name="preference_partner_key">Partner</string>
+    <string name="pref_value_default_partner_initial">AB</string>
+
 
     <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
     <string-array name="pref_example_list_titles">
