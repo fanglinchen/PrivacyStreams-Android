@@ -17,13 +17,14 @@ class BrowserSearchUpdatesProvider extends MStreamProvider {
     protected void provide() {
         getUQI().getData(TextEntry.asUpdates(), Purpose.INTERNAL("Event Triggers"))
                 .filter(ItemOperators.isFieldIn(BaseAccessibilityEvent.PACKAGE_NAME,
-                        new String[]{AppUtils.APP_PACKAGE_SEARCHBOX, AppUtils.APP_PACKAGE_FIREFOX, AppUtils.APP_PACKAGE_OPERA, AppUtils.APP_PACKAGE_CHROME}))
+                        new String[]{AppUtils.APP_PACKAGE_SEARCHBOX,
+                                AppUtils.APP_PACKAGE_FIREFOX, AppUtils.APP_PACKAGE_OPERA, AppUtils.APP_PACKAGE_CHROME}))
                 .forEach(new Callback<Item>() {
 
                     @Override
                     protected void onSuccess(Item input) {
                         output(new BrowserSearch(input.getValueByField(TextEntry.CONTENT).toString(),
-                                System.currentTimeMillis()));
+                                System.currentTimeMillis(),input.getValueByField(TextEntry.PACKAGE_NAME).toString()));
                     }
                 });
     };

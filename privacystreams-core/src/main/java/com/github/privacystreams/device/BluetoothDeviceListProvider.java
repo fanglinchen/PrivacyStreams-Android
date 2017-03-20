@@ -6,13 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.util.Log;
 
-import com.github.privacystreams.core.Item;
 import com.github.privacystreams.core.UQI;
 import com.github.privacystreams.core.providers.MStreamProvider;
 
-import static android.content.ContentValues.TAG;
 
 /**
  * Provide a stream of current visible bluetooth device list.
@@ -46,12 +43,10 @@ class BluetoothDeviceListProvider extends MStreamProvider {
                 // Get the BluetoothDevice object from the Intent
                 android.bluetooth.BluetoothDevice device = intent.getParcelableExtra(android.bluetooth.BluetoothDevice.EXTRA_DEVICE);
                 // return the new bluetooth device
-                Log.e("bt device",device.getAddress());
                 BluetoothDeviceListProvider.this.output(new BluetoothDevice(device));
             }
             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))
             {
-                Log.e(TAG,"Entered the Finished ");
                 BluetoothDeviceListProvider.this.finish();
             }
 

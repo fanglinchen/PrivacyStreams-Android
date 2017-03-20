@@ -44,14 +44,22 @@ public class Message extends Item {
     @PSItemField(type = Long.class)
     public static final String TIMESTAMP = "timestamp";
 
+    /**
+     * The current count of item of the message list. It can be
+     * used as a message id (sort of).
+     */
+    @PSItemField(type = Long.class)
+    public static final String ITEMCOUNT = "itemcount";
+
     public static class Types {
         public static final String RECEIVED = "received";
         public static final String SENT = "sent";
     };
 
-    Message(String type, String content, String packageName, String contact, long timestamp){
+    Message(int itemCount, String type, String content, String packageName, String contact, long timestamp){
         this.setFieldValue(TYPE, type);
         this.setFieldValue(CONTENT, content);
+        this.setFieldValue(ITEMCOUNT,itemCount);
         this.setFieldValue(PACKAGE_NAME, packageName);
         this.setFieldValue(CONTACT, contact);
         this.setFieldValue(TIMESTAMP, timestamp);

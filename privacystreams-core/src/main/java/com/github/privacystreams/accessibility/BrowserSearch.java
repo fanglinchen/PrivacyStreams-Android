@@ -22,9 +22,17 @@ public class BrowserSearch extends Item {
     @PSItemField(type = Long.class)
     public static final String TIMESTAMP = "timestamp";
 
-    BrowserSearch(String title, long timestamp) {
+    /**
+     * The browser package name.
+     */
+    @PSItemField(type = Long.class)
+    public static final String BROWSER_NAME = "browser_name";
+
+
+    BrowserSearch(String title, long timestamp, String browserName) {
         this.setFieldValue(TEXT, title);
         this.setFieldValue(TIMESTAMP,timestamp);
+        this.setFieldValue(BROWSER_NAME, browserName);
     }
 
     /**

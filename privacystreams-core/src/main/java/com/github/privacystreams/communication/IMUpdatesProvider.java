@@ -2,12 +2,12 @@ package com.github.privacystreams.communication;
 
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.github.privacystreams.accessibility.BaseAccessibilityEvent;
 import com.github.privacystreams.commons.comparison.Comparators;
-import com.github.privacystreams.commons.item.ItemOperators;
 import com.github.privacystreams.core.Callback;
 import com.github.privacystreams.core.Item;
 import com.github.privacystreams.core.providers.MStreamProvider;
@@ -31,26 +31,29 @@ class IMUpdatesProvider extends MStreamProvider {
     public static final String APP_PACKAGE_FACEBOOK_MESSENGER = "com.facebook.orca";
 
 
-    private void saveNewMessage(List<AccessibilityNodeInfo> nodeInfoList, String contactName, String packageName) {
+    private void saveNewMessage(int eventItemCount, List<AccessibilityNodeInfo> nodeInfoList, String contactName, String packageName) {
         totalNumberOfMessages += 1;
         AccessibilityNodeInfo nodeInfo = nodeInfoList.get(nodeInfoList.size() - 1);
         String messageContent = nodeInfoList.get(nodeInfoList.size() - 1).getText().toString();
+        Log.e("aa",messageContent);
         String messageType = AccessibilityUtils.isIncomingMessage(nodeInfo,packageName) ? Message.Types.RECEIVED : Message.Types.SENT;
-        this.output(new Message(messageType,messageContent,packageName,contactName,System.currentTimeMillis()));
+        this.output(new Message(eventItemCount,messageType,messageContent,packageName,contactName,System.currentTimeMillis()));
     }
 
     @Override
     protected void provide() {
         getUQI().getData(BaseAccessibilityEvent.asUpdates(),
                 Purpose.INTERNAL("Event Triggers"))
-                .filter(ItemOperators.isFieldIn(BaseAccessibilityEvent.PACKAGE_NAME,
-                        new String[]{APP_PACKAGE_WHATSAPP, APP_PACKAGE_FACEBOOK_MESSENGER}))
+//                .filter(ItemOperators.isFieldIn(BaseAccessibilityEvent.PACKAGE_NAME,
+//                        new String[]{APP_PACKAGE_WHATSAPP, APP_PACKAGE_FACEBOOK_MESSENGER}))
+                .filter(Comparators.eq(BaseAccessibilityEvent.PACKAGE_NAME,APP_PACKAGE_FACEBOOK_MESSENGER))
                 .filter(Comparators.eq(BaseAccessibilityEvent.EVENT_TYPE,
                         AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED))
                 .filter(Comparators.gt(BaseAccessibilityEvent.ITEM_COUNT, 2))
                 .forEach(new Callback<Item>() {
                     @Override
                     protected void onSuccess(Item input) {
+                        Log.e("aa",input.getValueByField(BaseAccessibilityEvent.EVENT_TYPE).toString());
                         AccessibilityNodeInfo rootView =
                                 input.getValueByField(BaseAccessibilityEvent.ROOT_VIEW);
                         String packageName = input.getValueByField(BaseAccessibilityEvent.PACKAGE_NAME);
@@ -81,7 +84,7 @@ class IMUpdatesProvider extends MStreamProvider {
                             initializing(eventItemCount);
                         }
                         else if (eventItemCount - totalNumberOfMessages == 1) {
-                            saveNewMessage(nodeInfos, contactName,packageName);
+                            saveNewMessage(eventItemCount,nodeInfos, contactName,packageName);
 
                         }
                     }
