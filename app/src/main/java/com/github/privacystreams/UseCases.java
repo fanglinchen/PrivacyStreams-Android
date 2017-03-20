@@ -61,6 +61,9 @@ public class UseCases {
 
     public UseCases(Context context) {
         this.uqi = new UQI(context);
+        GlobalConfig.DropboxConfig.accessToken = context.getResources().getString(R.string.dropbox_access_token);
+        GlobalConfig.DropboxConfig.leastSyncInterval = Duration.seconds(3);
+        GlobalConfig.DropboxConfig.onlyOverWifi = false;
     }
     /*
      For testing the new lightUpdatesProvider
@@ -79,9 +82,6 @@ public class UseCases {
 
     // For testing
     public void testMockData() {
-        GlobalConfig.DropboxConfig.accessToken = "wvotIxO75CUAAAAAAAAA8DJw6Cedm6A2Pt-jwHSMBW_KhIYaJUEt9CbgtKe5Vl8O";
-        GlobalConfig.DropboxConfig.leastSyncInterval = Duration.seconds(3);
-        GlobalConfig.DropboxConfig.onlyOverWifi = false;
 
         uqi
                 .getData(MockItem.asRandomUpdates(20, 100, 500), Purpose.TEST("test"))
@@ -117,7 +117,7 @@ public class UseCases {
                 .setIndependentField("bluetooth_list", BluetoothDevice.asScanList().compound(Collectors.toItemList()))
                 .setIndependentField("uuid", DeviceOperators.deviceIdGetter())
                 .limit(10)
-                .debug();
+                .forEach(DropboxOperators.<Item>uploadTo("test/DarkLight.txt",true));
 //                .forEach(DropboxOperators.uploadTo(new Function<Item, String>() {
 //                    @Override
 //                    public String apply(UQI uqi, Item input) {

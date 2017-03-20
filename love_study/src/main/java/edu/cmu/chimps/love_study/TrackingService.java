@@ -11,7 +11,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.NotificationCompat;
-import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
@@ -38,6 +37,7 @@ import com.github.privacystreams.image.Image;
 import com.github.privacystreams.location.GeoLocation;
 import com.github.privacystreams.storage.DropboxOperators;
 import com.github.privacystreams.utils.GlobalConfig;
+import com.github.privacystreams.utils.Logging;
 import com.github.privacystreams.utils.time.Duration;
 import com.google.android.gms.location.LocationRequest;
 
@@ -56,8 +56,6 @@ public class TrackingService extends Service {
     private static String participantId;
     UQI uqi;
     ReminderManager reminderManager;
-
-
 
 
     private void setupDropbox(){
@@ -117,7 +115,7 @@ public class TrackingService extends Service {
 
 
     public void collectData(){
-        Log.e("TrackingService","Collecting Data");
+        Logging.debug("Collecting Data..");
 
         PollingTask pollingTask = new PollingTask(POLLING_TASK_INTERVAL);
         pollingTask.run();
@@ -134,7 +132,6 @@ public class TrackingService extends Service {
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e("TrackingService","TrackingService");
         uqi = new UQI(this);
         reminderManager = new ReminderManager(this);
 
