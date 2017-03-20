@@ -13,16 +13,14 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import com.github.privacystreams.calendar.CalendarEvent;
-import com.github.privacystreams.communication.Contact;
-import com.github.privacystreams.communication.Message;
-import com.github.privacystreams.communication.Phonecall;
+import com.github.privacystreams.accessibility.TextEntry;
+import com.github.privacystreams.core.Item;
 import com.github.privacystreams.core.UQI;
 import com.github.privacystreams.core.purposes.Purpose;
 import com.github.privacystreams.image.Image;
-import com.github.privacystreams.location.GeoLocation;
+import com.github.privacystreams.storage.DropboxOperators;
+import com.github.privacystreams.utils.GlobalConfig;
 import com.github.privacystreams.utils.time.Duration;
-import com.google.android.gms.location.LocationRequest;
 
 import edu.cmu.chimps.love_study.pam.PAMActivity;
 
@@ -33,8 +31,51 @@ import edu.cmu.chimps.love_study.pam.PAMActivity;
 public class TrackingService extends Service {
     private  static final int NOTIFICATION_ID = 1234;
     private static final int WIFI_BT_SCAN_INTERVAL = 20*60*1000;
-    private static final int IMAGE_STORAGE_SCAN_INTERVAL = 1*30*1000;
+    private static final int POLLING_TASK_INTERVAL = 1*30*1000;
     UQI uqi;
+
+//    public static void scheduleAllSurveyReminders(){
+//
+//        Reminder endOfTheDaySurveyReminder = new Reminder();
+//        endOfTheDaySurveyReminder.hour = 22;
+//        endOfTheDaySurveyReminder.minute = 0;
+//        endOfTheDaySurveyReminder.type = REMINDER_TYPE_DAILY;
+//        endOfTheDaySurveyReminder.url = Constants.URL.END_OF_THE_DAY_EMA_URL;
+//        endOfTheDaySurveyReminder.notifText = "Self report";
+//        endOfTheDaySurveyReminder.notifTitle = "Survey";
+//
+//        scheduleReminder(endOfTheDaySurveyReminder);
+//
+//        Reminder dailyRandomSurveyReminder = new Reminder();
+//        dailyRandomSurveyReminder.type = REMINDER_TYPE_DAILY_RANDOM;
+//        dailyRandomSurveyReminder.url = Constants.URL.DAILY_EMA_URL;
+//        dailyRandomSurveyReminder.notifText = "Self report";
+//        dailyRandomSurveyReminder.notifTitle = "Survey";
+//
+//        scheduleReminder(dailyRandomSurveyReminder);
+//
+//        Reminder weeklySurveyReminder = new Reminder();
+//        weeklySurveyReminder.hour = 10;
+//        weeklySurveyReminder.minute = 0;
+//        weeklySurveyReminder.type = REMINDER_TYPE_DAILY;
+//        weeklySurveyReminder.url = Constants.URL.WEEKLY_EMA_URL;
+//        weeklySurveyReminder.notifText = "Self report";
+//        weeklySurveyReminder.notifTitle = "Survey";
+//
+//        scheduleReminder(weeklySurveyReminder);
+//
+//    }
+
+    private void surveyScheduling(){
+
+    }
+    private void setUpDropbox(){
+        GlobalConfig.DropboxConfig.accessToken = uqi.getContext()
+                .getResources().getString(R.string.dropbox_access_token);
+        GlobalConfig.DropboxConfig.leastSyncInterval = Duration.seconds(3);
+        GlobalConfig.DropboxConfig.onlyOverWifi = false;
+    }
+
     private class PollingTask extends RepeatingTask{
 
         public PollingTask(int frequency) {
@@ -43,17 +84,17 @@ public class TrackingService extends Service {
 
         @Override
         protected void doWork() {
-         uqi.getData(Contact.asList(), Purpose.FEATURE("LoveStudy ContactList Collection"))
-                .debug();
+//         uqi.getData(Contact.asList(), Purpose.FEATURE("LoveStudy ContactList Collection"))
+//                .forEach(DropboxOperators.<Item>uploadAs("ContactList"));
 
-         uqi.getData(CalendarEvent.asList(), Purpose.FEATURE("LoveStudy Calendar Event Collection"))
-                .debug();
-
+//         uqi.getData(CalendarEvent.asList(), Purpose.FEATURE("LoveStudy Calendar Event Collection"))
+//                .forEach(DropboxOperators.<Item>uploadAs("CalendarEvent"));
+//
          uqi.getData(Image.readFromStorage(),Purpose.FEATURE("Love Study Image Collection"))
-                .debug();
-
-         uqi.getData(Phonecall.asLogs(),Purpose.FEATURE("Love Study Phonecall Collection"))
-                .debug();
+                 .forEach(DropboxOperators.<Item>uploadAs("Image"));
+//
+//         uqi.getData(Phonecall.asLogs(),Purpose.FEATURE("Love Study Phonecall Collection"))
+//                .debug();
 
         }
     }
@@ -82,63 +123,40 @@ public class TrackingService extends Service {
     public void collectData(){
         Log.e("TrackingService","Collecting Data");
 
-        PollingTask pollingTask = new PollingTask(IMAGE_STORAGE_SCAN_INTERVAL);
+        PollingTask pollingTask = new PollingTask(POLLING_TASK_INTERVAL);
         pollingTask.run();
+//        Intent intentServiceIntent = new Intent(this,DataCollectingIntentService.class);
+//        startService(intentServiceIntent);
 //
-        uqi.getData(Message.asIMUpdates(), Purpose.FEATURE("LoveStudy Message Collection"))
-                .debug();
-////        uqi.getData(DeviceState.asUpdates(WIFI_BT_SCAN_INTERVAL, DeviceState.Masks.WIFI_AP_LIST
-////                | DeviceState.Masks.BLUETOOTH_DEVICE_LIST | DeviceState.Masks.BATTERY_LEVEL),
-////                Purpose.FEATURE("Love Study Light Collection"))
-////                .project(DeviceState.BATTERY_LEVEL).debug();
-//
-//        uqi.getData(Light.asUpdates(),Purpose.FEATURE("Love Study Light Collection"))
-//                .filter(Comparators.lt(Light.INTENSITY, 50))
-//                .debug();
-//
-        uqi.getData(GeoLocation.asUpdates(Duration.minutes(1), Duration.seconds(30),
-                LocationRequest.PRIORITY_HIGH_ACCURACY), Purpose.FEATURE("know when you enter an area"))
-                .debug();
-////        uqi.getData(DeviceEvent.asUpdates(),Purpose.FEATURE("Love Study Device State Collection"))
-////                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(DeviceEvent.TIMESTAMP, Duration.minutes(1))))
-////                .localGroupBy("time_round")
-////                .debug();
-//////
-//        uqi.getData(com.github.privacystreams.notification.Notification.asUpdates(),Purpose.FEATURE("Love Study Device State Collection"))
-//                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(DeviceEvent.TIMESTAMP, Duration.seconds(30))))
-//                .localGroupBy("time_round")
-//                .debug();
-//
-
-//        uqi.getData(TextEntry.asUpdates(), Purpose.FEATURE("Love Study Text Entry Collection"))
-//                .debug();
-//        uqi.getData(UIAction.asUpdates(), Purpose.FEATURE("Love Study UIAction Collection"))
-//                .setField("serialized_node", new Function<Item, String>() {
-//                    @Override
-//                    public String apply(UQI uqi, Item input) {
-//                        AccessibilityNodeInfo node = input.getValueByField(UIAction.ROOT_VIEW);
-//                        SerializedAccessibilityNodeInfo serialized = SerializedAccessibilityNodeInfo.serialize(node);
-//                        return uqi.getGson().toJson(serialized);
-//                    }
-//                })
-//            .debug();
-//
-//        uqi.getData(BrowserSearch.asUpdates(), Purpose.FEATURE("Love Study Browser Search Collection"))
-//                .debug();
-//        uqi.getData(BrowserVisit.asUpdates(), Purpose.FEATURE("Love Study Browser Visit Collection"))
-//                .debug();
+//        new DataCollectingTask().execute();
 
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("TrackingService","TrackingService");
         uqi = new UQI(this);
-        if(intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)){
+        if(intent!=null&&
+                intent.getAction()!=null
+                && intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)){
             showNotification();
+            setUpDropbox();
             collectData();
         }
         return START_STICKY;
     }
+    public void collectTextEntry(){
+        uqi.getData(TextEntry.asUpdates(), Purpose.FEATURE("Love Study Text Entry Collection"))
+//                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(TextEntry.TIME_CREATED, Duration.minutes(1))))
+//                .localGroupBy("time_round")
+                .forEach(DropboxOperators.<Item>uploadAs("TextEntry"));
+    }
+//    private class DataCollectingTask extends AsyncTask<String, Object, Object> {
+//        @Override
+//        protected Object doInBackground(String[] strings) {
+//            collectTextEntry();
+//            return null;
+//        }
+//    }
 
 
     @Nullable

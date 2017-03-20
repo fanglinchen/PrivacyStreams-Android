@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.github.privacystreams.utils.time.Duration;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -30,8 +32,6 @@ public class ReminderManager extends BroadcastReceiver {
 	public static final int REMINDER_TYPE_WEEKLY = 2;
 	public static final int REMINDER_TYPE_DAILY_RANDOM = 3;
 
-	public static final int DAY_IN_MILLISECONDS = 24*60*60*1000;
-	public static final int WEEK_IN_MILLISECONDS = 7*24*60*60*1000;
 
 	public static final String KEY_REMINDER_ACTION = "REMINDER_ACTION";
 	public static final String KEY_ALARM_TYPE = "alarm_type";
@@ -109,7 +109,7 @@ public class ReminderManager extends BroadcastReceiver {
 		scheduleReminder(dailyRandomSurveyReminder);
 
 		Reminder weeklySurveyReminder = new Reminder();
-		weeklySurveyReminder.hour = 22;
+		weeklySurveyReminder.hour = 10;
 		weeklySurveyReminder.minute = 0;
 		weeklySurveyReminder.type = REMINDER_TYPE_DAILY;
 		weeklySurveyReminder.url = Constants.URL.WEEKLY_EMA_URL;
@@ -133,13 +133,13 @@ public class ReminderManager extends BroadcastReceiver {
 
 		switch (reminder.type){
 			case REMINDER_TYPE_DAILY:
-				mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, deliveryTime.getTime(), DAY_IN_MILLISECONDS, pi); // repeat daily
+				mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, deliveryTime.getTime(), Duration.days(1), pi); // repeat daily
 				break;
 			case REMINDER_TYPE_WEEKLY:
-				mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, deliveryTime.getTime(), WEEK_IN_MILLISECONDS, pi); // repeat daily
+				mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, deliveryTime.getTime(), Duration.days(7), pi); // repeat weekly
 				break;
 			case REMINDER_TYPE_DAILY_RANDOM:
-				mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, deliveryTime.getTime(), DAY_IN_MILLISECONDS, pi); // repeat daily
+				mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, deliveryTime.getTime(), Duration.days(1), pi); // repeat daily
 				break;
 			default:
 				break;

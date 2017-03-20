@@ -44,6 +44,8 @@
         <activity android:name="edu.cmu.chimps.love_study.QualtricActivity"/>
         <activity android:name="edu.cmu.chimps.love_study.reminders.MissedSurveyListActivity"/>
         <service android:name=".TrackingService" android:launchMode="singleTop"/>
+        <service android:name=".DataCollectingIntentService" android:launchMode="singleTop"/>
+
         <!--<activity-->
             <!--android:name="com.dropbox.core.android.AuthActivity"-->
             <!--android:configChanges="orientation|keyboard"-->

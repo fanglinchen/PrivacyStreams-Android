@@ -1,5 +1,14 @@
 <resources>
     <string name="app_name">Love Study</string>
+    <string name="preference_participant_id_key">Participant_ID</string>
+    <string name="preference_partner_key">Partner</string>
+    <string name="f1_key">Friend 1 Initial</string>
+    <string name="f2_key">Friend 2 Initial</string>
+    <string name="f3_key">Friend 3 Initial</string>
+    <string name="f4_key">Friend 4 Initial</string>
+    <string name="f5_key">Friend 5 Initial</string>
+
+
     <string name="service_name">Love Study is Collecting Data</string>
     <string name="service_status_monitor">Love Study is Collecting Data</string>
     <!--omh schema settings -->

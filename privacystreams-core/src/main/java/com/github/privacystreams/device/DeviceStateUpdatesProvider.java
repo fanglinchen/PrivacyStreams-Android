@@ -81,6 +81,7 @@ class DeviceStateUpdatesProvider extends MStreamProvider {
                     .getData(WifiAp.asScanList(), Purpose.INTERNAL("DeviceStateUpdatesProvider"))
                     .asList();
             deviceState.setFieldValue(DeviceState.WIFI_AP_LIST, wifiList);
+
         } catch (PrivacyStreamsException e) {
             e.printStackTrace();
         }

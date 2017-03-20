@@ -1,17 +1,12 @@
 package edu.cmu.chimps.love_study.pam;
 
-import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
-import android.location.Location;
-import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -27,6 +22,9 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.github.privacystreams.core.UQI;
+import com.github.privacystreams.storage.DropboxOperators;
+
 import org.joda.time.DateTime;
 import org.json.JSONObject;
 
@@ -37,19 +35,14 @@ import edu.cmu.chimps.love_study.GeneralSettingActivity;
 import edu.cmu.chimps.love_study.R;
 import edu.cmu.chimps.love_study.reminders.MissedSurveyListActivity;
 
-
-
 public class PAMActivity extends AppCompatActivity {
-
 
     Bitmap[] images;
     int[] imageIds;
     private final Random random = new Random();
 
     private static String pam_photo_id;
-    private static Location userLocation;
 
-    private static final int TWO_MINUTES = 1000 * 60 * 2;
     private int selection = GridView.INVALID_POSITION;
     private GridView gridview;
 
@@ -94,29 +87,6 @@ public class PAMActivity extends AppCompatActivity {
                 }
             }
         });
-        // TODO JARED: is location used anymore, without ProbeLibrary?
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        LocationManager locationManager = (LocationManager)
-                PAMActivity.this.getSystemService(Context.LOCATION_SERVICE);
-        Location gpsloc =
-                locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Location netloc =
-                locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (isBetterLocation(gpsloc, netloc)) {
-            userLocation = gpsloc;
-        } else {
-            userLocation = netloc;
-        }
     }
     @Override
     public void onResume(){
@@ -148,7 +118,15 @@ public class PAMActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
     }
-    
+
+
+    private class MyAsyncTask extends AsyncTask<String, Object, Object> {
+        @Override
+        protected Object doInBackground(String[] strings) {
+            DropboxOperators.uploadAs("PAM").apply(new UQI(PAMActivity.this), strings[0]);
+            return null;
+        }
+    }
     private String onSubmit() {
         try {
 
@@ -158,97 +136,20 @@ public class PAMActivity extends AppCompatActivity {
             PamSchema pamSchema = new PamSchema(idx, dt);
             JSONObject body = pamSchema.toJSON();
 
-            // attach location information is available
-            if(userLocation != null) {
-                JSONObject location = new JSONObject();
-                location.put("latitude", userLocation.getLatitude());
-                location.put("longitude", userLocation.getLongitude());
-                location.put("accuracy", userLocation.getAccuracy());
-                location.put("altitude", userLocation.getAltitude());
-                location.put("bearing", userLocation.getBearing());
-                location.put("speed", userLocation.getSpeed());
-                location.put("timestamp", userLocation.getTime());
-                body.put("location", location);
-            }
-
             Log.e("body",body.toString());
-
+            new MyAsyncTask().execute(body.toString());
             Toast.makeText(PAMActivity.this, "Thank you. Your response is being saved.", Toast.LENGTH_LONG).show();
             // clear selection
             pam_photo_id = null;
 
             PAMActivity.this.finish();
         } catch (Exception e) {
+            Log.e("e",e.toString());
             Toast.makeText(PAMActivity.this, "Submission failed. Please contact study coordinator", Toast.LENGTH_LONG).show();
         }
         return null;
     }
 
-    /**
-     * Determines whether one Location reading is better than the current
-     * Location fix
-     *
-     * @param location            The new Location that you want to evaluate
-     * @param currentBestLocation The current Location fix, to which you want to
-     *                            compare the new one
-     */
-    protected boolean isBetterLocation(Location location, Location currentBestLocation) {
-        if (currentBestLocation == null) {
-            // A new location is always better than no location
-            return true;
-        }
-        if (location == null) {
-            return false;
-        }
-
-        // Check whether the new location fix is newer or older
-        long timeDelta = location.getTime() - currentBestLocation.getTime();
-        boolean isSignificantlyNewer = timeDelta > TWO_MINUTES;
-        boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;
-        boolean isNewer = timeDelta > 0;
-
-        // If it's been more than two minutes since the current location, use
-        // the new location
-        // because the user has likely moved
-        if (isSignificantlyNewer) {
-            return true;
-            // If the new location is more than two minutes older, it must be
-            // worse
-        } else if (isSignificantlyOlder) {
-            return false;
-        }
-
-        // Check whether the new location fix is more or less accurate
-        int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation.getAccuracy());
-        boolean isLessAccurate = accuracyDelta > 0;
-        boolean isMoreAccurate = accuracyDelta < 0;
-        boolean isSignificantlyLessAccurate = accuracyDelta > 200;
-
-        // Check if the old and new location are from the same provider
-        boolean isFromSameProvider = isSameProvider(location.getProvider(),
-                currentBestLocation.getProvider());
-
-        // Determine location quality using a combination of timeliness and
-        // accuracy
-        if (isMoreAccurate) {
-            return true;
-        } else if (isNewer && !isLessAccurate) {
-            return true;
-        } else if (isNewer && !isSignificantlyLessAccurate && isFromSameProvider) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Checks whether two providers are the same
-     */
-    private boolean isSameProvider(String provider1, String provider2) {
-        if (provider1 == null) {
-            return provider2 == null;
-        }
-        return provider1.equals(provider2);
-    }
 
     private void loadImages() {
         images = new Bitmap[IMAGE_FOLDERS.length];

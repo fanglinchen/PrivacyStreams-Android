@@ -3,6 +3,7 @@ package edu.cmu.chimps.love_study;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -71,8 +72,132 @@ public class GeneralSettingActivity extends PreferenceActivity {
                     return false;
                 }
             });
-        }
+
+            Preference participantIdPreference = findPreference("participantId");
+            participantIdPreference
+                    .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+
+                        @Override
+                        public boolean onPreferenceChange(Preference preference,
+                                                          Object newValue) {
+                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString(getString(R.string.preference_participant_id_key),
+                                    newValue.toString());
+                            editor.apply();
+
+                            return true;
+                        }
+            });
+
+            Preference partnerInitialPreference = findPreference("partnerInitial");
+            partnerInitialPreference
+                    .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+
+                        @Override
+                        public boolean onPreferenceChange(Preference preference,
+                                                          Object newValue) {
+                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString(getString(R.string.preference_partner_key),
+                                    newValue.toString());
+                            editor.apply();
+
+                            return true;
+                        }
+                    });
+
+            Preference f1Preference = findPreference("username1");
+            f1Preference
+                    .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+
+                        @Override
+                        public boolean onPreferenceChange(Preference preference,
+                                                          Object newValue) {
+                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString(getString(R.string.f1_key),
+                                    newValue.toString());
+                            editor.apply();
+
+                            return true;
+                        }
+                    });
+
+            Preference f2Preference = findPreference("username2");
+            f2Preference
+                    .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+
+                        @Override
+                        public boolean onPreferenceChange(Preference preference,
+                                                          Object newValue) {
+                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString(getString(R.string.f2_key),
+                                    newValue.toString());
+                            editor.apply();
+
+                            return true;
+                        }
+                    });
+
+            Preference f3Preference = findPreference("username3");
+            f3Preference
+                    .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+
+                        @Override
+                        public boolean onPreferenceChange(Preference preference,
+                                                          Object newValue) {
+                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString(getString(R.string.f3_key),
+                                    newValue.toString());
+                            editor.apply();
+
+                            return true;
+                        }
+                    });
+
+            Preference f4Preference = findPreference("username4");
+            f4Preference
+                    .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+
+                        @Override
+                        public boolean onPreferenceChange(Preference preference,
+                                                          Object newValue) {
+                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString(getString(R.string.f4_key),
+                                    newValue.toString());
+                            editor.apply();
+
+                            return true;
+                        }
+            });
+
+            Preference f5Preference = findPreference("username5");
+            f5Preference
+                    .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+
+                        @Override
+                        public boolean onPreferenceChange(Preference preference,
+                                                          Object newValue) {
+                            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString(getString(R.string.f5_key),
+                                    newValue.toString());
+                            editor.apply();
+
+                            return true;
+                        }
+                    });
+        };
     }
-
-
 }
