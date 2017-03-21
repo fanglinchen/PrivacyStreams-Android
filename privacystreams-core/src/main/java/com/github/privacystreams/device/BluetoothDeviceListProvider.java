@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
 import com.github.privacystreams.core.UQI;
 import com.github.privacystreams.core.providers.MStreamProvider;
 
@@ -60,6 +59,10 @@ class BluetoothDeviceListProvider extends MStreamProvider {
     @Override
     protected void onCancelled(UQI uqi) {
         super.onCancelled(uqi);
-        getContext().unregisterReceiver(mReceiver);
+        try {
+            getContext().unregisterReceiver(mReceiver);
+        }
+        catch (Exception ignored) {
+        }
     }
 }
