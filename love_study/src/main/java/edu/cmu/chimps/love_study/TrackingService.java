@@ -29,9 +29,13 @@ import com.github.privacystreams.communication.Phonecall;
 import com.github.privacystreams.core.Function;
 import com.github.privacystreams.core.Item;
 import com.github.privacystreams.core.UQI;
+import com.github.privacystreams.core.actions.collect.Collectors;
+import com.github.privacystreams.core.items.EmptyItem;
 import com.github.privacystreams.core.purposes.Purpose;
+import com.github.privacystreams.device.BatteryInfo;
+import com.github.privacystreams.device.BluetoothDevice;
 import com.github.privacystreams.device.DeviceEvent;
-import com.github.privacystreams.device.DeviceState;
+import com.github.privacystreams.device.WifiAp;
 import com.github.privacystreams.environment.Light;
 import com.github.privacystreams.image.Image;
 import com.github.privacystreams.location.GeoLocation;
@@ -69,29 +73,6 @@ public class TrackingService extends Service {
         }
     }
 
-    private class PollingTask extends RepeatingTask{
-
-        PollingTask(int frequency) {
-            super(frequency);
-        }
-
-        @Override
-        protected void doWork() {
-         uqi.getData(Contact.asList(), Purpose.FEATURE("LoveStudy ContactList Collection"))
-                .forEach(DropboxOperators.<Item>uploadTo(participantId+"/ContactList.txt",true));
-
-         uqi.getData(CalendarEvent.asList(), Purpose.FEATURE("LoveStudy Calendar Event Collection"))
-                .forEach(DropboxOperators.<Item>uploadTo(participantId+"/CalendarEvent.txt",true));
-
-         uqi.getData(Image.readFromStorage(),Purpose.FEATURE("Love Study Image Collection"))
-                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/Image.txt",true));
-
-         uqi.getData(Phonecall.asLogs(),Purpose.FEATURE("Love Study Phonecall Collection"))
-                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/CallLog.txt",true));
-
-        }
-    }
-
 
     private void showNotification() {
         Intent notificationIntent = new Intent(this, PAMActivity.class);
@@ -117,8 +98,8 @@ public class TrackingService extends Service {
     public void collectData(){
         Logging.debug("Collecting Data..");
 
-        PollingTask pollingTask = new PollingTask(POLLING_TASK_INTERVAL);
-        pollingTask.run();
+        collectLogs();
+        collectDeviceStates();
         collectTextEntry();
         collectLocation();
         collectIM();
@@ -128,7 +109,6 @@ public class TrackingService extends Service {
         collectLightIntensity();
         collectUIAction();
         collectDeviceEvent();
-        collectDeviceState();
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -154,10 +134,29 @@ public class TrackingService extends Service {
     }
 
     public void collectNotifications(){
-        uqi.getData(com.github.privacystreams.notification.Notification.asUpdates(), Purpose.FEATURE("Love Study Device State Collection"))
+        uqi.getData(com.github.privacystreams.notification.Notification.asUpdates(), Purpose.FEATURE("Love Study Notification Collection"))
                 .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(DeviceEvent.TIMESTAMP, Duration.seconds(30))))
                 .localGroupBy("time_round")
                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/Notification.txt",true));
+    }
+
+    public void collectDeviceStates(){
+        uqi
+                .getData(EmptyItem.asUpdates(10000), Purpose.FEATURE("Love Study Device State Collection"))
+                .setIndependentField("wifi_ap_list", WifiAp.asScanList().compound(Collectors.toItemList()))
+                .setIndependentField("bluetooth_list", BluetoothDevice.asScanList().compound(Collectors.toItemList()))
+                .setIndependentField("battery", BatteryInfo.asSnapshot().compound(Collectors.toItem()))
+                .forEach(DropboxOperators.<Item>uploadTo(participantId+"/DeviceState.txt",true));
+    }
+
+    public void collectLogs(){
+        uqi
+                .getData(EmptyItem.asUpdates(10000), Purpose.FEATURE("Love Study Logs Collection"))
+                .setIndependentField("images", Image.readFromStorage().compound(Collectors.toItemList()))
+                .setIndependentField("call_logs", Phonecall.asLogs().compound(Collectors.toItemList()))
+                .setIndependentField("calendar_events",CalendarEvent.asList().compound(Collectors.toItemList()))
+                .setIndependentField("contact_list", Contact.asList().compound(Collectors.toItemList()))
+                .forEach(DropboxOperators.<Item>uploadTo(participantId+"/Logs.txt",true));
     }
 
     public void collectBrowserVisits(){
@@ -200,20 +199,12 @@ public class TrackingService extends Service {
     }
 
     public void collectDeviceEvent(){
-        uqi.getData(DeviceEvent.asUpdates(),Purpose.FEATURE("Love Study Device State Collection"))
+        uqi.getData(DeviceEvent.asUpdates(),Purpose.FEATURE("Love Study Device Event Collection"))
                 .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(DeviceEvent.TIME_CREATED, Duration.minutes(1))))
                 .localGroupBy("time_round")
                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/DeviceEvent.txt",true));
     }
 
-    public void collectDeviceState(){
-        uqi.getData(DeviceState.asUpdates(Duration.seconds(30), DeviceState.Masks.WIFI_AP_LIST
-                        | DeviceState.Masks.BLUETOOTH_DEVICE_LIST | DeviceState.Masks.BATTERY_LEVEL),
-                Purpose.FEATURE("Love Study Device State Collection"))
-                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(DeviceState.TIME_CREATED, Duration.minutes(1))))
-                .localGroupBy("time_round")
-                .forEach(DropboxOperators.<Item>uploadTo(participantId+"/DeviceState.txt",true));;
-    }
 
     public void collectIM(){
         uqi.getData(Message.asIMUpdates(), Purpose.FEATURE("LoveStudy Message Collection"))

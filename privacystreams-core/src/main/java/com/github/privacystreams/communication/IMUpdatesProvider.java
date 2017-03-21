@@ -31,13 +31,15 @@ class IMUpdatesProvider extends MStreamProvider {
     public static final String APP_PACKAGE_FACEBOOK_MESSENGER = "com.facebook.orca";
 
 
-    private void saveNewMessage(int eventItemCount, List<AccessibilityNodeInfo> nodeInfoList, String contactName, String packageName) {
+    private void saveMessage(int eventItemCount, List<AccessibilityNodeInfo> nodeInfoList, String contactName, String packageName) {
         totalNumberOfMessages += 1;
         AccessibilityNodeInfo nodeInfo = nodeInfoList.get(nodeInfoList.size() - 1);
         String messageContent = nodeInfoList.get(nodeInfoList.size() - 1).getText().toString();
-        Log.e("aa",messageContent);
-        String messageType = AccessibilityUtils.isIncomingMessage(nodeInfo,packageName) ? Message.Types.RECEIVED : Message.Types.SENT;
-        this.output(new Message(eventItemCount,messageType,messageContent,packageName,contactName,System.currentTimeMillis()));
+        Log.e("new message "+totalNumberOfMessages,messageContent);
+        String messageType = AccessibilityUtils.isIncomingMessage(nodeInfo,packageName) ?
+                Message.Types.RECEIVED : Message.Types.SENT;
+        this.output(new Message(eventItemCount,messageType,messageContent,packageName,
+                contactName,System.currentTimeMillis()));
     }
 
     @Override
@@ -46,7 +48,7 @@ class IMUpdatesProvider extends MStreamProvider {
                 Purpose.INTERNAL("Event Triggers"))
 //                .filter(ItemOperators.isFieldIn(BaseAccessibilityEvent.PACKAGE_NAME,
 //                        new String[]{APP_PACKAGE_WHATSAPP, APP_PACKAGE_FACEBOOK_MESSENGER}))
-                .filter(Comparators.eq(BaseAccessibilityEvent.PACKAGE_NAME,APP_PACKAGE_FACEBOOK_MESSENGER))
+                .filter(Comparators.eq(BaseAccessibilityEvent.PACKAGE_NAME,APP_PACKAGE_WHATSAPP))
                 .filter(Comparators.eq(BaseAccessibilityEvent.EVENT_TYPE,
                         AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED))
                 .filter(Comparators.gt(BaseAccessibilityEvent.ITEM_COUNT, 2))
@@ -68,23 +70,26 @@ class IMUpdatesProvider extends MStreamProvider {
                             return;
                         }
                         if(!contactName.equals(detContactName)){
+                            Log.e("contactName","not equal");
                             totalNumberOfMessages=0;
                         }
                         detContactName=contactName;
 
                         List<AccessibilityNodeInfo> nodeInfos =
                                 AccessibilityUtils.getMessageList(rootView,packageName);
-
-                        int eventItemCount = getEventItemCount(packageName,input);
                         if(nodeInfos==null || nodeInfos.size()==0){
+                            Log.e("nodeInfo","null");
                             return;
                         }
 
+                        int eventItemCount = getEventItemCount(packageName,input);
+
                         if(totalNumberOfMessages==0){
-                            initializing(eventItemCount);
+                            totalNumberOfMessages = eventItemCount;
                         }
                         else if (eventItemCount - totalNumberOfMessages == 1) {
-                            saveNewMessage(eventItemCount,nodeInfos, contactName,packageName);
+                            saveMessage(eventItemCount,nodeInfos,
+                                    contactName,packageName);
 
                         }
                     }
@@ -102,12 +107,4 @@ class IMUpdatesProvider extends MStreamProvider {
         return result;
     }
 
-    public boolean initializing(int eventItemCount) {
-        try {
-            totalNumberOfMessages = eventItemCount;
-            return true;        }
-        catch (Exception e) {
-            return false;
-        }
-    }
 }
