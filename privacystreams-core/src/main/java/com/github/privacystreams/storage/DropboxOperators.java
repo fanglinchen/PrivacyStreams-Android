@@ -23,9 +23,9 @@ public class DropboxOperators {
 //     * @param fileTag the file tag of uploaded files
 //     * @return the function
 //     */
-//    public static <Tin> Function<Tin, Void> uploadAs(String fileTag) {
-//        return new DropboxUploader<>(fileTag);
-//    }
+    public static <Tin> Function<Tin, Void> uploadAs(String fileTag) {
+        return new DropboxUploader<>(fileTag);
+    }
 
 //    /**
 //     * Append an object to Dropbox.
@@ -38,9 +38,9 @@ public class DropboxOperators {
 //     * @param fileName the name of the Dropbox file to append
 //     * @return the function
 //     */
-//    public static <Tin> Function<Tin, Void> appendTo(String fileName) {
-//        return new DropboxAppender<>(fileName);
-//    }
+    public static <Tin> Function<Tin, Void> appendTo(String fileName) {
+        return new DropboxAppender<>(fileName);
+    }
 
     /**
      * Upload an object to Dropbox, the output file will be at `filePath`.
