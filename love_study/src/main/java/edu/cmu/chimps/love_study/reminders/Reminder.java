@@ -15,14 +15,16 @@ public class Reminder {
 	public Integer minute; // Minute of the hour to deliver reminder
 	public String url;
 	public Integer type;
-	
-	public static final String EXTRA_REMINDER_ID = "reminder_id";
+	public boolean answeredToday;
+
 	private static final String KEY_ID = "id";
 	private static final String KEY_HOUR = "hour";
 	private static final String KEY_MIN = "minute";
 	private static final String KEY_TITLE = "title";
 	private static final String KEY_TEXT = "text";
 	private static final String KEY_URL = "url";
+	private static final String KEY_ANSWERED_TODAY = "answered_today";
+
 	
 	public Reminder(){
 		Random r = new Random();
@@ -39,6 +41,7 @@ public class Reminder {
 			json.put(KEY_TITLE, notifTitle);
 			json.put(KEY_TEXT, notifText);
 			json.put(KEY_URL,url);
+			json.put(KEY_ANSWERED_TODAY, answeredToday);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -54,6 +57,8 @@ public class Reminder {
 			this.notifTitle = json.getString(KEY_TITLE);
 			this.notifText = json.getString(KEY_TEXT);
 			this.url = json.getString(KEY_URL);
+			this.answeredToday = json.getBoolean(KEY_ANSWERED_TODAY);
+
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

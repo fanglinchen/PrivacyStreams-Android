@@ -54,8 +54,6 @@ import edu.cmu.chimps.love_study.reminders.ReminderManager;
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class TrackingService extends Service {
     private  static final int NOTIFICATION_ID = 1234;
-    private static final int WIFI_BT_SCAN_INTERVAL = 20*60*1000;
-    private static final int POLLING_TASK_INTERVAL = 1*30*1000;
 
     private static String participantId;
     UQI uqi;

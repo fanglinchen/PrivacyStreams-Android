@@ -16,8 +16,8 @@ import android.widget.Toast;
 import java.util.HashSet;
 import java.util.Set;
 
-import static edu.cmu.chimps.love_study.Utils.isAccessibilityEnabled;
 import static edu.cmu.chimps.love_study.Utils.isTrackingEnabled;
+import static edu.cmu.chimps.love_study.Utils.startTracking;
 
 
 public class GeneralSettingActivity extends PreferenceActivity {
@@ -40,15 +40,11 @@ public class GeneralSettingActivity extends PreferenceActivity {
         super.onResume();
         if(!isTrackingEnabled(context) && tracking_clicked){
            Toast.makeText(context,"Tracking Started!", Toast.LENGTH_LONG).show();
-           startTracking();
+           startTracking(context);
         }
     }
 
-    public static void startTracking(){
-        Intent serviceIntent = new Intent(context,TrackingService.class);
-        serviceIntent.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
-        context.startService(serviceIntent);
-    }
+
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class PrefsFragment extends PreferenceFragment {
@@ -65,12 +61,12 @@ public class GeneralSettingActivity extends PreferenceActivity {
                     .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    if(!isAccessibilityEnabled(context)){
+                    if(!Utils.isAccessibilitySettingsOn(context)){
                         tracking_clicked = true;
                         startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
                     }
                     else{
-                        startTracking();
+                        startTracking(context);
                         Toast.makeText(context,"Tracking Started!", Toast.LENGTH_LONG).show();
                     }
                     return false;
@@ -105,7 +101,7 @@ public class GeneralSettingActivity extends PreferenceActivity {
                             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
                             SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString(getString(R.string.preference_partner_key),
+                            editor.putString(getString(R.string.shared_preference_key_partner_initial),
                                     newValue.toString());
                             editor.apply();
                             partnerInitialPreference.setEnabled(false);

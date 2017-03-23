@@ -15,7 +15,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import edu.cmu.chimps.love_study.Constants;
-import edu.cmu.chimps.love_study.QualtricActivity;
+import edu.cmu.chimps.love_study.QualtricsActivity;
 import edu.cmu.chimps.love_study.R;
 
 
@@ -28,8 +28,7 @@ public class MissedSurveyListActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.activity_reminder_list);
-		
-		// Fetch the existing reminders
+
 		ReminderManager mReminderManager = new ReminderManager(this);
 		reminders = mReminderManager.getAllReminders();
 
@@ -39,7 +38,7 @@ public class MissedSurveyListActivity extends ListActivity {
     	{
     		public void onItemClick(AdapterView parent, View v, int position, long id)
     		{
-				final Intent intent = new Intent(MissedSurveyListActivity.this, QualtricActivity.class);
+				final Intent intent = new Intent(MissedSurveyListActivity.this, QualtricsActivity.class);
 				intent.putExtra(Constants.URL.KEY_SURVEY_URL, Constants.URL.DAILY_EMA_URL);
 				startActivity(intent);
     		}
@@ -72,30 +71,24 @@ public class MissedSurveyListActivity extends ListActivity {
 
 	    @NonNull
 		public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-	    	try {
-	            Reminder item = reminders.get(position);
-	            View v = null;
-	            if (convertView == null) {
+			View v;
+
+			Reminder item = reminders.get(position);
+
+			if (convertView == null) {
 	            	v = inflater.inflate(R.layout.item_reminder, null);
 
-	            } else {
+			} else {
 	                v = convertView;
-	            }
+			}
 
-	            TextView header = (TextView) v.findViewById(R.id.text1);
-	            TextView description = (TextView) v.findViewById(R.id.text2);
+			TextView header = (TextView) v.findViewById(R.id.text1);
 
-	            SimpleTime sd = new SimpleTime(item.hour, item.minute);
-	            header.setText(sd.toString(true));
-//	            if(item.enabled){
-//	            	description.setText("On");
-//	            } else {
-//	            	description.setText("Off");
-//	            }
-	            return v;
-	        } catch (Exception ex) {
-	            return null;
-	        }
+			SimpleTime sd = new SimpleTime(item.hour, item.minute);
+			header.setText(sd.toString(true));
+
+			return v;
+
 	    }
 		
 		

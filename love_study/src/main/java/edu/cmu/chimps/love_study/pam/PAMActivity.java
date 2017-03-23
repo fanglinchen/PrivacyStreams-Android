@@ -33,6 +33,7 @@ import java.util.Random;
 
 import edu.cmu.chimps.love_study.GeneralSettingActivity;
 import edu.cmu.chimps.love_study.R;
+import edu.cmu.chimps.love_study.Utils;
 import edu.cmu.chimps.love_study.reminders.MissedSurveyListActivity;
 
 public class PAMActivity extends AppCompatActivity {
@@ -40,7 +41,6 @@ public class PAMActivity extends AppCompatActivity {
     Bitmap[] images;
     int[] imageIds;
     private final Random random = new Random();
-
     private static String pam_photo_id;
 
     private int selection = GridView.INVALID_POSITION;
@@ -72,6 +72,7 @@ public class PAMActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pam);
 
+
         gridview = (GridView) this.findViewById(R.id.pam_grid);
         Button submit = (Button) this.findViewById(R.id.post_submit);
         submit.setOnClickListener(new View.OnClickListener() {
@@ -93,13 +94,24 @@ public class PAMActivity extends AppCompatActivity {
         super.onResume();
         loadImages();
         setupPAM();
+        invalidateOptionsMenu();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
         return true;
     }
+
+    @Override
+    public boolean onPrepareOptionsMenu (Menu menu) {
+        if(Utils.hasStoredPreferences(this) && Utils.isTrackingEnabled(this)) {
+            menu.findItem(R.id.general_config).setEnabled(false);
+        }
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
@@ -114,16 +126,17 @@ public class PAMActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
     }
 
-
     private class MyAsyncTask extends AsyncTask<String, Object, Object> {
         @Override
         protected Object doInBackground(String[] strings) {
-            DropboxOperators.uploadTo("PAM.txt",true).apply(new UQI(PAMActivity.this), strings[0]);
+            String participantId = Utils.getParticipantID(PAMActivity.this);
+            DropboxOperators.uploadTo(participantId+"/PAM.txt",true).apply(new UQI(PAMActivity.this), strings[0]);
             return null;
         }
     }
@@ -136,16 +149,20 @@ public class PAMActivity extends AppCompatActivity {
             PamSchema pamSchema = new PamSchema(idx, dt);
             JSONObject body = pamSchema.toJSON();
 
-            Log.e("body",body.toString());
             new MyAsyncTask().execute(body.toString());
-            Toast.makeText(PAMActivity.this, "Thank you. Your response is being saved.", Toast.LENGTH_LONG).show();
+            Toast.makeText(PAMActivity.this,
+                    "Thank you. Your response is being saved.",
+                    Toast.LENGTH_LONG).show();
+
             // clear selection
             pam_photo_id = null;
 
             PAMActivity.this.finish();
         } catch (Exception e) {
             Log.e("e",e.toString());
-            Toast.makeText(PAMActivity.this, "Submission failed. Please contact study coordinator", Toast.LENGTH_LONG).show();
+            Toast.makeText(PAMActivity.this,
+                    "Submission failed. Please contact study coordinator",
+                    Toast.LENGTH_LONG).show();
         }
         return null;
     }

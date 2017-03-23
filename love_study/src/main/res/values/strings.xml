@@ -30,6 +30,7 @@
     <string name="pref_value_default_participant_id">P00</string>
 
 
+    PREF_SAVED_REMINDERS
 
     <string name="preference_partner_key">Partner</string>
     <string name="pref_value_default_partner_initial">AB</string>
