@@ -23,11 +23,11 @@
         android:id="@+id/general_config"
         android:orderInCategory="101" />
 
-    <item
-        android:title="Missed Surveys"
-        android:id="@+id/missed_surveys"
-        android:orderInCategory="101"
-        />
+    <!--<item-->
+        <!--android:title="Missed Surveys"-->
+        <!--android:id="@+id/missed_surveys"-->
+        <!--android:orderInCategory="101"-->
+        <!--/>-->
 
 
 </menu>

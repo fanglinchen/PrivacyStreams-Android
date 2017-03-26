@@ -9,6 +9,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 
 import com.github.privacystreams.accessibility.MyAccessibilityService;
+import com.github.privacystreams.notification.MyNotificationListenerService;
 import com.github.privacystreams.utils.Logging;
 
 import java.util.Random;
@@ -35,6 +36,10 @@ public class Utils {
         return getParticipantID(context)!=null
                 && getPartnerInitial(context) !=null
                 && randomlySelectFriendInitial(context) !=null;
+    }
+
+    public static boolean isNotificationServiceRunning(Context context){
+        return isMyServiceRunning(context, MyNotificationListenerService.class);
     }
 
     public static boolean isAccessibilitySettingsOn(Context mContext) {

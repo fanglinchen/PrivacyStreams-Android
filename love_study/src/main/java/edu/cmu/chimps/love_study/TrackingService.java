@@ -63,14 +63,13 @@ public class TrackingService extends Service {
     private void setupDropbox(){
         GlobalConfig.DropboxConfig.accessToken = uqi.getContext()
                 .getResources().getString(R.string.dropbox_access_token);
-        GlobalConfig.DropboxConfig.leastSyncInterval = Duration.seconds(3);
+        GlobalConfig.DropboxConfig.leastSyncInterval = Duration.minutes(1);
         GlobalConfig.DropboxConfig.onlyOverWifi = false;
         participantId = Utils.getParticipantID(this);
         if(participantId==null){
             Toast.makeText(this,"Please fill in your participant id then start tracking. ", Toast.LENGTH_LONG).show();
         }
     }
-
 
     private void showNotification() {
         Intent notificationIntent = new Intent(this, PAMActivity.class);
@@ -91,7 +90,6 @@ public class TrackingService extends Service {
         startForeground(NOTIFICATION_ID, notification);
 
     }
-
 
     public void collectData(){
         Logging.debug("Collecting Data..");
@@ -116,10 +114,12 @@ public class TrackingService extends Service {
         if(intent!=null
                 && intent.getAction()!=null
                 && intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)){
+            Logging.debug("start collecting..");
             showNotification();
             setupDropbox();
             collectData();
-            reminderManager.scheduleAllSurveyReminders();
+
+            reminderManager.initialize();
         }
         return START_STICKY;
     }
@@ -129,18 +129,20 @@ public class TrackingService extends Service {
                 LocationRequest.PRIORITY_HIGH_ACCURACY),
                 Purpose.FEATURE("Collect GPS Coordinate Every 2 minutes"))
                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/Location.txt",true));
+
     }
 
     public void collectNotifications(){
         uqi.getData(com.github.privacystreams.notification.Notification.asUpdates(), Purpose.FEATURE("Love Study Notification Collection"))
-                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(DeviceEvent.TIMESTAMP, Duration.seconds(30))))
+                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(com.github.privacystreams.notification.Notification.TIME_CREATED,
+                        Duration.minutes(20))))
                 .localGroupBy("time_round")
                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/Notification.txt",true));
     }
 
     public void collectDeviceStates(){
         uqi
-                .getData(EmptyItem.asUpdates(10000), Purpose.FEATURE("Love Study Device State Collection"))
+                .getData(EmptyItem.asUpdates(Duration.minutes(20)), Purpose.FEATURE("Love Study Device State Collection"))
                 .setIndependentField("wifi_ap_list", WifiAp.asScanList().compound(Collectors.toItemList()))
                 .setIndependentField("bluetooth_list", BluetoothDevice.asScanList().compound(Collectors.toItemList()))
                 .setIndependentField("battery", BatteryInfo.asSnapshot().compound(Collectors.toItem()))
@@ -149,7 +151,7 @@ public class TrackingService extends Service {
 
     public void collectLogs(){
         uqi
-                .getData(EmptyItem.asUpdates(10000), Purpose.FEATURE("Love Study Logs Collection"))
+                .getData(EmptyItem.asUpdates(Duration.hours(4)), Purpose.FEATURE("Love Study Logs Collection"))
                 .setIndependentField("images", Image.readFromStorage().compound(Collectors.toItemList()))
                 .setIndependentField("call_logs", Phonecall.asLogs().compound(Collectors.toItemList()))
                 .setIndependentField("calendar_events",CalendarEvent.asList().compound(Collectors.toItemList()))
@@ -159,18 +161,22 @@ public class TrackingService extends Service {
 
     public void collectBrowserVisits(){
         uqi.getData(BrowserVisit.asUpdates(), Purpose.FEATURE("Love Study Browser Visit Collection"))
+                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(BrowserVisit.TIME_CREATED, Duration.minutes(10))))
+                .localGroupBy("time_round")
                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/BrowserVisits.txt",true));
     }
 
     public void collectBrowserSearch(){
         uqi.getData(BrowserSearch.asUpdates(), Purpose.FEATURE("Love Study Browser Search Collection"))
+                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(BrowserSearch.TIME_CREATED, Duration.minutes(10))))
+                .localGroupBy("time_round")
                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/BrowserSearches.txt",true));
 
     }
     public void collectLightIntensity(){
         uqi.getData(Light.asUpdates(),Purpose.FEATURE("Love Study Light Collection"))
                 .filter(Comparators.lt(Light.INTENSITY, 50))
-                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(Light.TIMESTAMP, Duration.minutes(1))))
+                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(Light.TIMESTAMP, Duration.minutes(10))))
                 .localGroupBy("time_round")
                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/DarkLight.txt",true));
     }
@@ -191,7 +197,7 @@ public class TrackingService extends Service {
                         return SerializedAccessibilityNodeInfo.serialize(node);
                     }
                 })
-                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(UIAction.TIME_CREATED, Duration.seconds(30))))
+                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(UIAction.TIME_CREATED, Duration.minutes(20))))
                 .localGroupBy("time_round")
                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/UIAction.txt",true));
     }
@@ -206,7 +212,7 @@ public class TrackingService extends Service {
 
     public void collectIM(){
         uqi.getData(Message.asIMUpdates(), Purpose.FEATURE("LoveStudy Message Collection"))
-                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(Message.TIMESTAMP, Duration.seconds(30))))
+                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(Message.TIME_CREATED, Duration.minutes(1))))
                 .localGroupBy("time_round")
                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/IM.txt",true));
     }
@@ -227,7 +233,7 @@ public class TrackingService extends Service {
                         return SerializedAccessibilityNodeInfo.serialize(node);
                     }
                 })
-                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(TextEntry.TIME_CREATED, Duration.minutes(1))))
+                .map(ItemOperators.setField("time_round", ArithmeticOperators.roundUp(TextEntry.TIME_CREATED, Duration.minutes(10))))
                 .localGroupBy("time_round")
                 .forEach(DropboxOperators.<Item>uploadTo(participantId+"/TextEntry.txt",true));
     }

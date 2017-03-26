@@ -16,6 +16,7 @@ import android.widget.Toast;
 import java.util.HashSet;
 import java.util.Set;
 
+import static edu.cmu.chimps.love_study.Utils.isNotificationServiceRunning;
 import static edu.cmu.chimps.love_study.Utils.isTrackingEnabled;
 import static edu.cmu.chimps.love_study.Utils.startTracking;
 
@@ -24,6 +25,7 @@ public class GeneralSettingActivity extends PreferenceActivity {
 
     private static Context context;
     private static boolean tracking_clicked;
+
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
@@ -38,12 +40,15 @@ public class GeneralSettingActivity extends PreferenceActivity {
     @Override
     public void onResume(){
         super.onResume();
-        if(!isTrackingEnabled(context) && tracking_clicked){
+        if(!Utils.isNotificationServiceRunning(context)){
+            startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+        }
+
+        if(!isTrackingEnabled(context) && tracking_clicked && isNotificationServiceRunning(context)){
            Toast.makeText(context,"Tracking Started!", Toast.LENGTH_LONG).show();
            startTracking(context);
         }
     }
-
 
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -64,7 +69,9 @@ public class GeneralSettingActivity extends PreferenceActivity {
                     if(!Utils.isAccessibilitySettingsOn(context)){
                         tracking_clicked = true;
                         startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+
                     }
+
                     else{
                         startTracking(context);
                         Toast.makeText(context,"Tracking Started!", Toast.LENGTH_LONG).show();

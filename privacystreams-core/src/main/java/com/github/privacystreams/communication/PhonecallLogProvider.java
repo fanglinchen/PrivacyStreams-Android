@@ -55,6 +55,7 @@ class PhonecallLogProvider extends MStreamProvider {
                 null,
                 null
         );
+
         if (c != null && c.getCount() > 0) {
             c.moveToFirst();
             while (!c.isAfterLast()) {
@@ -78,9 +79,8 @@ class PhonecallLogProvider extends MStreamProvider {
                 }
                 c.moveToNext();
             }
+            c.close();
         }
-        c.close();
-
     }
     @Override
     protected void provide() {

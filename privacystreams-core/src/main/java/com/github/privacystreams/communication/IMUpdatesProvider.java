@@ -8,12 +8,14 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.github.privacystreams.accessibility.BaseAccessibilityEvent;
 import com.github.privacystreams.commons.comparison.Comparators;
+import com.github.privacystreams.commons.item.ItemOperators;
 import com.github.privacystreams.core.Callback;
 import com.github.privacystreams.core.Item;
 import com.github.privacystreams.core.providers.MStreamProvider;
 import com.github.privacystreams.core.purposes.Purpose;
 import com.github.privacystreams.utils.AccessibilityUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -33,12 +35,19 @@ class IMUpdatesProvider extends MStreamProvider {
 
     private void saveMessage(int eventItemCount, List<AccessibilityNodeInfo> nodeInfoList, String contactName, String packageName) {
         totalNumberOfMessages += 1;
-        AccessibilityNodeInfo nodeInfo = nodeInfoList.get(nodeInfoList.size() - 1);
-        String messageContent = nodeInfoList.get(nodeInfoList.size() - 1).getText().toString();
-        Log.e("new message "+totalNumberOfMessages,messageContent);
-        String messageType = AccessibilityUtils.isIncomingMessage(nodeInfo,packageName) ?
-                Message.Types.RECEIVED : Message.Types.SENT;
-        this.output(new Message(eventItemCount,messageType,messageContent,packageName,
+//        AccessibilityNodeInfo nodeInfo = nodeInfoList.get(nodeInfoList.size() - 1);
+//        String messageContent = nodeInfoList.get(nodeInfoList.size() - 1).getText().toString();
+//        Log.e("new message "+totalNumberOfMessages,messageContent);
+        ArrayList<String> messageType = new ArrayList<>();
+        ArrayList<String> messages = new ArrayList<>();
+        for(AccessibilityNodeInfo nodeInfo: nodeInfoList){
+            messageType.add(AccessibilityUtils.isIncomingMessage(nodeInfo,packageName) ?
+                    Message.Types.RECEIVED : Message.Types.SENT);
+            messages.add(nodeInfo.getText().toString());
+        }
+//        String messageType = AccessibilityUtils.isIncomingMessage(nodeInfo,packageName) ?
+//                Message.Types.RECEIVED : Message.Types.SENT;
+        this.output(new Message(eventItemCount,messageType,messages,packageName,
                 contactName,System.currentTimeMillis()));
     }
 
@@ -46,20 +55,22 @@ class IMUpdatesProvider extends MStreamProvider {
     protected void provide() {
         getUQI().getData(BaseAccessibilityEvent.asUpdates(),
                 Purpose.INTERNAL("Event Triggers"))
-//                .filter(ItemOperators.isFieldIn(BaseAccessibilityEvent.PACKAGE_NAME,
-//                        new String[]{APP_PACKAGE_WHATSAPP, APP_PACKAGE_FACEBOOK_MESSENGER}))
-                .filter(Comparators.eq(BaseAccessibilityEvent.PACKAGE_NAME,APP_PACKAGE_WHATSAPP))
+                .filter(ItemOperators.isFieldIn(BaseAccessibilityEvent.PACKAGE_NAME,
+                        new String[]{APP_PACKAGE_WHATSAPP, APP_PACKAGE_FACEBOOK_MESSENGER}))
+//                .filter(Comparators.eq(BaseAccessibilityEvent.PACKAGE_NAME,APP_PACKAGE_WHATSAPP))
                 .filter(Comparators.eq(BaseAccessibilityEvent.EVENT_TYPE,
                         AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED))
                 .filter(Comparators.gt(BaseAccessibilityEvent.ITEM_COUNT, 2))
                 .forEach(new Callback<Item>() {
                     @Override
                     protected void onSuccess(Item input) {
-                        Log.e("aa",input.getValueByField(BaseAccessibilityEvent.EVENT_TYPE).toString());
+
                         AccessibilityNodeInfo rootView =
                                 input.getValueByField(BaseAccessibilityEvent.ROOT_VIEW);
                         String packageName = input.getValueByField(BaseAccessibilityEvent.PACKAGE_NAME);
                         if(!packageName.equals(detPackage)){
+                            Log.e("new app", packageName);
+                            Log.e("last app", detPackage);
                             totalNumberOfMessages=0;
                         }
 
@@ -67,10 +78,13 @@ class IMUpdatesProvider extends MStreamProvider {
                         String contactName = AccessibilityUtils
                                 .getContactNameInChat(rootView,packageName);
                         if(contactName==null) {
+                            Log.e("cannot get","contact name");
                             return;
                         }
+
                         if(!contactName.equals(detContactName)){
-                            Log.e("contactName","not equal");
+                            Log.e("new contact name", contactName);
+                            Log.e("last contact name", detContactName);
                             totalNumberOfMessages=0;
                         }
                         detContactName=contactName;
@@ -78,7 +92,7 @@ class IMUpdatesProvider extends MStreamProvider {
                         List<AccessibilityNodeInfo> nodeInfos =
                                 AccessibilityUtils.getMessageList(rootView,packageName);
                         if(nodeInfos==null || nodeInfos.size()==0){
-                            Log.e("nodeInfo","null");
+                            Log.e("nodeInfo","empty");
                             return;
                         }
 
@@ -86,12 +100,18 @@ class IMUpdatesProvider extends MStreamProvider {
 
                         if(totalNumberOfMessages==0){
                             totalNumberOfMessages = eventItemCount;
+//                            Log.e("totalNumberOfMessages",totalNumberOfMessages+"");
                         }
-                        else if (eventItemCount - totalNumberOfMessages == 1) {
+                        else if (eventItemCount - totalNumberOfMessages > 0) {
+                            Log.e("add","new message");
                             saveMessage(eventItemCount,nodeInfos,
                                     contactName,packageName);
 
                         }
+//                        else{
+//                            Log.e("totalNumberOfMessages",totalNumberOfMessages+"");
+//                            Log.e("eventItemCount",eventItemCount+"");
+//                        }
                     }
                 });
 

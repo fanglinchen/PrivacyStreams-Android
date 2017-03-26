@@ -24,7 +24,7 @@ public class Reminder {
 	private static final String KEY_TEXT = "text";
 	private static final String KEY_URL = "url";
 	private static final String KEY_ANSWERED_TODAY = "answered_today";
-
+	private static final String KEY_TYPE = "type";
 	
 	public Reminder(){
 		Random r = new Random();
@@ -41,7 +41,9 @@ public class Reminder {
 			json.put(KEY_TITLE, notifTitle);
 			json.put(KEY_TEXT, notifText);
 			json.put(KEY_URL,url);
+			json.put(KEY_TYPE, type);
 			json.put(KEY_ANSWERED_TODAY, answeredToday);
+
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -58,6 +60,7 @@ public class Reminder {
 			this.notifText = json.getString(KEY_TEXT);
 			this.url = json.getString(KEY_URL);
 			this.answeredToday = json.getBoolean(KEY_ANSWERED_TODAY);
+			this.type = json.getInt(KEY_TYPE);
 
 		} catch (JSONException e) {
 			e.printStackTrace();

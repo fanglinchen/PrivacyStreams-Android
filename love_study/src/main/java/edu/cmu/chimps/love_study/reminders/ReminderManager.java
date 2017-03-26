@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.github.privacystreams.utils.time.Duration;
 
@@ -75,13 +76,15 @@ public class ReminderManager extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		try {
 			mContext = context;
+			unscheduleAllReminders();
+			Thread.sleep(Duration.minutes(2));
 			scheduleAllReminders();
 			if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
-//				scheduleAllReminders();
+				Log.e("onReceive","boot");
+				Utils.startTracking(context);
 			} else if (intent.getAction().equals(KEY_REMINDER_ACTION)) {
 				// Deliver a notification
 				deliverNotification(intent);
-				scheduleAllReminders();
 			}
 		} catch (Exception e){
 			e.printStackTrace();
@@ -101,6 +104,7 @@ public class ReminderManager extends BroadcastReceiver {
 	}
 	// Only called once.
 	public void initialize(){
+		removeAllReminders();
 		saveAllReminders(setupSurveyReminders());
 		// setup alarms
 		scheduleAllReminders();
@@ -112,7 +116,7 @@ public class ReminderManager extends BroadcastReceiver {
 
 		// 20:00 pm everyday.
 		Reminder endOfTheDaySurveyReminder = new Reminder();
-		endOfTheDaySurveyReminder.hour = 22;
+		endOfTheDaySurveyReminder.hour = 20;
 		endOfTheDaySurveyReminder.minute = 0;
 		endOfTheDaySurveyReminder.type = REMINDER_TYPE_DAILY;
 		endOfTheDaySurveyReminder.url = Constants.URL.END_OF_THE_DAY_EMA_URL+"&Id="+participantID+"&Partner="+partnerInitial;
@@ -141,6 +145,7 @@ public class ReminderManager extends BroadcastReceiver {
 		reminders.add(endOfTheDaySurveyReminder);
 		reminders.add(dailyRandomSurveyReminder);
 		reminders.add(weeklySurveyReminder);
+
 		return reminders;
 	}
 
@@ -171,6 +176,12 @@ public class ReminderManager extends BroadcastReceiver {
 
 	}
 
+	public void unscheduleAllReminders(){
+		ArrayList<Reminder> reminders = getAllReminders();
+		for(Reminder reminder: reminders){
+			unscheduleReminder(reminder);
+		}
+	}
 
 	public void unscheduleReminder(Reminder reminder){
 		AlarmManager mAlarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
@@ -196,6 +207,7 @@ public class ReminderManager extends BroadcastReceiver {
 					// previous time today, so set for tomorrow
 					setTo.add(Calendar.DAY_OF_YEAR, 1);
 				}
+				Log.e("daily",setTo.getTime().toString());
 				break;
 			case REMINDER_TYPE_DAILY_RANDOM:
 				setTo.set(Calendar.HOUR_OF_DAY, reminder.hour);
@@ -204,7 +216,9 @@ public class ReminderManager extends BroadcastReceiver {
 					// previous time today, so set for tomorrow
 					setTo.add(Calendar.DAY_OF_YEAR, 1);
 				}
+				Log.e("random",setTo.getTime().toString());
 				break;
+
 			case REMINDER_TYPE_WEEKLY:
 				setTo.set(Calendar.DAY_OF_WEEK,Calendar.SUNDAY);
 				setTo.set(Calendar.HOUR_OF_DAY, reminder.hour);
@@ -213,6 +227,7 @@ public class ReminderManager extends BroadcastReceiver {
 					// set for next week.
 					setTo.add(Calendar.DAY_OF_YEAR, 7);
 				}
+				Log.e("weekly",setTo.getTime().toString());
 				break;
 			default:
 				break;
@@ -231,18 +246,6 @@ public class ReminderManager extends BroadcastReceiver {
 		return null;
 	}
 
-	public void updateReminder(Reminder reminder){
-		ArrayList<Reminder> reminders = getAllReminders();
-		for(Reminder it: reminders){
-			if (it.id.equals(reminder.id)){
-				reminders.remove(it);
-				reminders.add(reminder);
-				break;
-			}
-		}
-		saveAllReminders(reminders);
-
-	}
 
 	public void removeReminder(Reminder reminder){
 		ArrayList<Reminder> reminders = getAllReminders();
@@ -256,14 +259,17 @@ public class ReminderManager extends BroadcastReceiver {
 		saveAllReminders(reminders);
 	}
 
-
+//	private boolean reminderHappenedToday(){
+//
+//	}
+//
 //	public ArrayList<Reminder> showMissedSurveys(){
 //
 //		ArrayList<Reminder> missedReminders = new ArrayList<>();
 //
 //		ArrayList<Reminder> reminders = getAllReminders();
 //		for(Reminder reminder:reminders){
-//			if(!reminder.answeredToday && reminder.minute  ){
+//			if(!reminder.answeredToday && reminder.minute   ){
 //				missedReminders.add()
 //			}
 //

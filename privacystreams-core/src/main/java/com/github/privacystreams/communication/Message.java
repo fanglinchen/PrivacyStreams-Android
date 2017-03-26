@@ -8,6 +8,8 @@ import com.github.privacystreams.utils.Logging;
 import com.github.privacystreams.utils.annotations.PSItem;
 import com.github.privacystreams.utils.annotations.PSItemField;
 
+import java.util.ArrayList;
+
 /**
  * A text message. It could be from SMS, WhatsApp, Facebook, etc.
  */
@@ -56,7 +58,7 @@ public class Message extends Item {
         public static final String SENT = "sent";
     };
 
-    Message(int itemCount, String type, String content, String packageName, String contact, long timestamp){
+    Message(int itemCount, ArrayList<String> type, ArrayList<String> content, String packageName, String contact, long timestamp){
         this.setFieldValue(TYPE, type);
         this.setFieldValue(CONTENT, content);
         this.setFieldValue(ITEMCOUNT,itemCount);

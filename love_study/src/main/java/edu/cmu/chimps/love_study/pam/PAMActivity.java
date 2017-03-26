@@ -34,7 +34,6 @@ import java.util.Random;
 import edu.cmu.chimps.love_study.GeneralSettingActivity;
 import edu.cmu.chimps.love_study.R;
 import edu.cmu.chimps.love_study.Utils;
-import edu.cmu.chimps.love_study.reminders.MissedSurveyListActivity;
 
 public class PAMActivity extends AppCompatActivity {
 
@@ -119,9 +118,9 @@ public class PAMActivity extends AppCompatActivity {
             case R.id.general_config:
                 startActivity(new Intent(this,GeneralSettingActivity.class));
                 return true;
-            case R.id.missed_surveys:
-                startActivity(new Intent(this, MissedSurveyListActivity.class));
-                return true;
+//            case R.id.missed_surveys:
+//                startActivity(new Intent(this, MissedSurveyListActivity.class));
+//                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
